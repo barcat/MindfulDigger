@@ -1,6 +1,12 @@
-wwwroot/lib/alpinejs/cdn.js
-wwwroot/lib/alpinejs/cdn.min.js
-wwwroot/lib/alpinejs/module.cjs.js
-wwwroot/lib/alpinejs/module.cjs.min.js
-wwwroot/lib/alpinejs/module.esm.js
-wwwroot/lib/alpinejs/module.esm.min.js
+wwwroot/lib/
+
+
+
+# Build results
+
+MindfulDigger/[Dd]ebug/
+MindfulDigger/[Rr]elease/
+MindfulDigger/x64/
+MindfulDigger/build/
+MindfulDigger/[Bb]in/
+MindfulDigger/[Oo]bj/
