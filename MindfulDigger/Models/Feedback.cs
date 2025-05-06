@@ -1,3 +1,5 @@
+namespace MindfulDigger.Models;
+
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using Newtonsoft.Json;
