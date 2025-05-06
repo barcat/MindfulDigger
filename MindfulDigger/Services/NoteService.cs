@@ -1,6 +1,7 @@
 using MindfulDigger.DTOs;
 using MindfulDigger.Models;
 using Supabase;
+using Supabase.Postgrest.Extensions; // Added for Count() extension method
 using Microsoft.Extensions.Logging;
 using Supabase.Postgrest.Exceptions;
 
@@ -118,30 +119,33 @@ public class NoteService : INoteService
             var offset = (page - 1) * pageSize;
 
             // Get total count for pagination
-            var countQuery = await _supabaseClient
+            var countQuery = _supabaseClient // Renamed 'query' to 'countQuery' to avoid conflict
                 .From<Note>()
-                .Where(n => n.UserId == userId)
-                .Count(CancellationToken.None); // Using CancellationToken.None for count to ensure we get accurate pagination
-
-            var totalCount = countQuery.Count;
+                .Where(n => n.UserId == userId);
+            
+            // Explicitly call the Count method and store the task
+            var totalCount = await countQuery.Count(Supabase.Postgrest.Constants.CountType.Exact, cancellationToken); // Call Count as an extension method
 
             // Get paginated notes
-            var notes = await _supabaseClient
+            var notesQueryBuilder = _supabaseClient // Renamed 'response' to 'notesQueryBuilder' for clarity
                 .From<Note>()
                 .Where(n => n.UserId == userId)
                 .Order(n => n.CreationDate, Supabase.Postgrest.Constants.Ordering.Descending)
                 .Range(offset, offset + pageSize - 1)
-                .Get(cancellationToken);
+                .Select("*"); // Configures the selection
+
+            var notesResponse = await notesQueryBuilder.Get(cancellationToken); // Execute the query and get the response
+            var notes = notesResponse.Models; // Get the List<Note> from the response
 
             // Map to DTOs with content snippets
-            var noteDtos = notes.Models.Select(n => new NoteListItemDto
+            var noteDtos = notes.Select(n => new NoteListItemDto
             {
                 Id = n.Id!,
                 CreationDate = n.CreationDate,
                 ContentSnippet = n.Content.Length <= SnippetLength 
                     ? n.Content 
                     : n.Content[..SnippetLength] + "..."
-            });
+            }).ToList(); // Added .ToList() to materialize the list
 
             // Calculate total pages
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -154,7 +158,7 @@ public class NoteService : INoteService
                     CurrentPage = page,
                     PageSize = pageSize,
                     TotalPages = totalPages,
-                    TotalCount = totalCount
+                    TotalCount = (int)totalCount // Cast long to int
                 }
             };
         }

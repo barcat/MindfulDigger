@@ -7,12 +7,12 @@ namespace MindfulDigger.Tests
     [TestFixture]
     public class NoteServiceTests
     {
-        private INoteService _noteService;
+        private INoteService? _noteService; // Changed to nullable
 
         [SetUp]
         public void Setup()
         {
-            // TODO: Initialize _noteService with a mock or test implementation
+            _noteService = Substitute.For<INoteService>(); // Initialize _noteService
         }
 
         // TODO: Add test methods here
