@@ -11,4 +11,10 @@ public interface INoteService
         public UserNoteLimitExceededException(string message) : base(message) { }
     }
 
+    Task<PaginatedResponse<NoteListItemDto>> GetUserNotesAsync(
+        string userId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken
+    );
 }

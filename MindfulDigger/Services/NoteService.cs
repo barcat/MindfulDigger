@@ -11,7 +11,7 @@ public class NoteService : INoteService
     private readonly Client _supabaseClient;
     private readonly ILogger<NoteService> _logger;
     private const int MaxNotesPerUser = 100; // Define the note limit
-    private const int SnippetLength = 50; // Define snippet length
+    private const int SnippetLength = 120; // Changed to match the implementation plan
 
     public NoteService(Client supabaseClient, ILogger<NoteService> logger)
     {
@@ -101,5 +101,72 @@ public class NoteService : INoteService
             CreationDate = createdNote.CreationDate,
             ContentSnippet = contentSnippet
         };
+    }
+
+    public async Task<PaginatedResponse<NoteListItemDto>> GetUserNotesAsync(
+        string userId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("Fetching notes for user {UserId}, page {Page}, pageSize {PageSize}", 
+                userId, page, pageSize);
+
+            // Calculate offset
+            var offset = (page - 1) * pageSize;
+
+            // Get total count for pagination
+            var countQuery = await _supabaseClient
+                .From<Note>()
+                .Where(n => n.UserId == userId)
+                .Count(CancellationToken.None); // Using CancellationToken.None for count to ensure we get accurate pagination
+
+            var totalCount = countQuery.Count;
+
+            // Get paginated notes
+            var notes = await _supabaseClient
+                .From<Note>()
+                .Where(n => n.UserId == userId)
+                .Order(n => n.CreationDate, Supabase.Postgrest.Constants.Ordering.Descending)
+                .Range(offset, offset + pageSize - 1)
+                .Get(cancellationToken);
+
+            // Map to DTOs with content snippets
+            var noteDtos = notes.Models.Select(n => new NoteListItemDto
+            {
+                Id = n.Id!,
+                CreationDate = n.CreationDate,
+                ContentSnippet = n.Content.Length <= SnippetLength 
+                    ? n.Content 
+                    : n.Content[..SnippetLength] + "..."
+            });
+
+            // Calculate total pages
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            return new PaginatedResponse<NoteListItemDto>
+            {
+                Items = noteDtos,
+                Pagination = new PaginationMetadataDto
+                {
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalPages = totalPages,
+                    TotalCount = totalCount
+                }
+            };
+        }
+        catch (PostgrestException ex)
+        {
+            _logger.LogError(ex, "Database error while fetching notes for user {UserId}", userId);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while fetching notes for user {UserId}", userId);
+            throw;
+        }
     }
 }

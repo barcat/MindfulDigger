@@ -15,11 +15,67 @@ public class NotesController : ControllerBase
 {
     private readonly INoteService _noteService;
     private readonly ILogger<NotesController> _logger;
+    private const int DefaultPageSize = 15;
+    private const int MaxPageSize = 100;
 
     public NotesController(INoteService noteService, ILogger<NotesController> logger)
     {
         _noteService = noteService;
         _logger = logger;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResponse<NoteListItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PaginatedResponse<NoteListItemDto>>> GetNotes(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        CancellationToken cancellationToken)
+    {
+        // Validate and normalize pagination parameters
+        var normalizedPage = page ?? 1;
+        var normalizedPageSize = pageSize ?? DefaultPageSize;
+
+        if (normalizedPage <= 0)
+        {
+            return BadRequest(new { message = "Page must be greater than 0" });
+        }
+
+        if (normalizedPageSize <= 0)
+        {
+            return BadRequest(new { message = "PageSize must be greater than 0" });
+        }
+
+        if (normalizedPageSize > MaxPageSize)
+        {
+            return BadRequest(new { message = $"PageSize cannot exceed {MaxPageSize}" });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            _logger.LogWarning("User ID not found in token claims despite [Authorize] attribute");
+            return Unauthorized(new { message = "User ID could not be determined from token" });
+        }
+
+        try
+        {
+            var result = await _noteService.GetUserNotesAsync(
+                userId,
+                normalizedPage,
+                normalizedPageSize,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving notes for user {UserId}", userId);
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { message = "An error occurred while retrieving notes" });
+        }
     }
 
     [HttpPost]
