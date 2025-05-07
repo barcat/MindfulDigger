@@ -1,6 +1,10 @@
-using System.Collections.Generic;
-
 namespace MindfulDigger.DTOs;
+
+public class PaginatedResponse<T>
+{
+    public IEnumerable<T> Items { get; set; } = new List<T>();
+    public PaginationMetadataDto Pagination { get; set; } = new();
+}
 
 public class PaginationMetadataDto
 {
@@ -10,8 +14,3 @@ public class PaginationMetadataDto
     public int TotalCount { get; set; }
 }
 
-public class PaginatedResponse<T>
-{
-    public IEnumerable<T> Items { get; set; } = new List<T>();
-    public PaginationMetadataDto Pagination { get; set; } = new();
-}
