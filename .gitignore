@@ -18,3 +18,5 @@ MindfulDigger/[Dd]ebug/
 MindfulDigger/[Rr]elease/
 MindfulDigger/x64/
 MindfulDigger/[Bb]uild/
+MindfulDigger.Tests/bin/
+MindfulDigger.Tests/obj/
