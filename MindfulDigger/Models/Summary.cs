@@ -14,7 +14,7 @@ public class Summary : BaseModel
     public Guid UserId { get; set; }
 
     [Column("content")]
-    public string Content { get; set; }
+    public string? Content { get; set; } // Remains nullable as per plan
 
     [Column("generation_date")]
     public DateTimeOffset GenerationDate { get; set; }
@@ -31,13 +31,19 @@ public class Summary : BaseModel
     [Column("is_automatic")]
     public bool IsAutomatic { get; set; }
 
-    // Parameterless constructor to satisfy the 'new()' constraint
-    // and initialize required members.
+    [Column("status")]
+    public string? Status { get; set; } 
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; } 
+
+    // Parameterless constructor
     public Summary()
     {
-        // Initialize required string properties to a non-null default.
-        // The actual values will be populated by Supabase client during deserialization.
-        Content = string.Empty; 
+        // Content is nullable, so no default initialization here.
         PeriodDescription = string.Empty;
+        // Initialize CreatedAt to a sensible default, though it will likely be set by the DB or service.
+        CreatedAt = DateTime.UtcNow;
+        // Status is nullable, Content is nullable.
     }
 }

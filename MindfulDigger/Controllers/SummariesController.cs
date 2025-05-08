@@ -76,5 +76,56 @@ namespace MindfulDigger.Controllers
                 return StatusCode(500, "An unexpected error occurred. Please try again later.");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSummaries([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            _logger.LogInformation("Attempting to get summaries for user. Page: {Page}, PageSize: {PageSize}", page, pageSize);
+
+            if (page < 1)
+            {
+                _logger.LogWarning("Invalid page number requested: {Page}", page);
+                return BadRequest(new { error = "Page number must be 1 or greater." });
+            }
+            
+            // Define a max page size, e.g., 100, as per implementation plan
+            const int maxPageSize = 100;
+            if (pageSize < 1 || pageSize > maxPageSize)
+            {
+                _logger.LogWarning("Invalid page size requested: {PageSize}. Must be between 1 and {MaxPageSize}.", pageSize, maxPageSize);
+                return BadRequest(new { error = $"Page size must be between 1 and {maxPageSize}." });
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                // This case should ideally be handled by the [Authorize] attribute,
+                // but as a safeguard:
+                _logger.LogWarning("User ID not found in token for GetSummaries.");
+                return Unauthorized(new { error = "User ID not found in token." });
+            }
+
+            try
+            {
+                var paginatedResult = await _summaryService.GetSummariesAsync(userId, page, pageSize);
+                
+                // The plan's response structure is slightly different from PaginatedResponse<T>
+                // It expects "summaries" and "pagination" top-level keys.
+                var response = new
+                {
+                    summaries = paginatedResult.Items,
+                    pagination = paginatedResult.Pagination
+                };
+                
+                _logger.LogInformation("Successfully retrieved summaries for user {UserId}. Page: {Page}, PageSize: {PageSize}, TotalCount: {TotalCount}", userId, page, pageSize, paginatedResult.Pagination.TotalCount);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving summaries for user {UserId}. Page: {Page}, PageSize: {PageSize}", userId, page, pageSize);
+                // As per plan, return a generic 500 error message
+                return StatusCode(500, new { error = "An unexpected error occurred. Please try again later." });
+            }
+        }
     }
 }
