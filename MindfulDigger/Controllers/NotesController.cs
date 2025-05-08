@@ -53,12 +53,7 @@ public class NotesController : ControllerBase
             return BadRequest(new { message = $"PageSize cannot exceed {MaxPageSize}" });
         }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-        {
-            _logger.LogWarning("User ID not found in token claims despite [Authorize] attribute");
-            return Unauthorized(new { message = "User ID could not be determined from token" });
-        }
+        var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
 
         try
         {
@@ -85,15 +80,8 @@ public class NotesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateNote([FromBody] CreateNoteRequest request)
     {
-        // Model validation is handled automatically by [ApiController]
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-        {
-            // This should technically not be reached if [Authorize] is effective
-            _logger.LogWarning("User ID not found in token claims despite [Authorize] attribute.");
-            return Unauthorized(new { message = "User ID could not be determined from token." });
-        }
+        var userIdstrign = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var userId = new Guid(userIdstrign);
 
         try
         {

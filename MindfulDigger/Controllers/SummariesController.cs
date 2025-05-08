@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MindfulDigger.Models; // Required for Summary model
+using Microsoft.AspNetCore.Http; // Required for StatusCodes
 
 namespace MindfulDigger.Controllers
 {
@@ -126,6 +127,32 @@ namespace MindfulDigger.Controllers
                 // As per plan, return a generic 500 error message
                 return StatusCode(500, new { error = "An unexpected error occurred. Please try again later." });
             }
+        }
+
+        [HttpPost("generate")]
+        // [Authorize] // Already on controller level
+        public async Task<IActionResult> GenerateSummary([FromBody] GenerateSummaryRequestDto requestDto)
+        {
+            // Model validation is handled by [ApiController] attribute
+            
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("User ID not found in token for GenerateSummary.");
+                return Unauthorized(new { message = "User ID not found in token." }); // Return a ProblemDetails-like object or simple message
+            }
+
+            _logger.LogInformation("GenerateSummary called by user {UserId} with period {Period}", userId, requestDto.Period);
+
+            var (summaryDto, statusCode) = await _summaryService.GenerateSummaryAsync(userId, requestDto);
+
+            return statusCode switch
+            {
+                StatusCodes.Status201Created => CreatedAtAction(nameof(GetSummaryById), new { summaryId = summaryDto.Id }, summaryDto),
+                StatusCodes.Status400BadRequest => BadRequest(new { title = "Validation Error", status = StatusCodes.Status400BadRequest, detail = summaryDto.Content }), // Assuming content holds error message
+                StatusCodes.Status500InternalServerError => StatusCode(StatusCodes.Status500InternalServerError, new { title = "Internal Server Error", status = StatusCodes.Status500InternalServerError, detail = summaryDto.Content }),
+                _ => StatusCode(statusCode, summaryDto) 
+            };
         }
     }
 }

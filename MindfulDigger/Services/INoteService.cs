@@ -4,7 +4,7 @@ namespace MindfulDigger.Services;
 
 public interface INoteService
 {
-    Task<CreateNoteResponse> CreateNoteAsync(CreateNoteRequest request, string userId);
+    Task<CreateNoteResponse> CreateNoteAsync(CreateNoteRequest request, Guid userId);
     // Define custom exception for note limit
     public class UserNoteLimitExceededException : Exception
     {
@@ -12,7 +12,7 @@ public interface INoteService
     }
 
     Task<PaginatedResponse<NoteListItemDto>> GetUserNotesAsync(
-        string userId,
+        Guid userId,
         int page,
         int pageSize,
         CancellationToken cancellationToken

@@ -9,6 +9,6 @@ namespace MindfulDigger.Services
     {
         Task<Summary?> GetSummaryByIdAsync(Guid summaryId);
         Task<PaginatedResponse<SummaryListItemDto>> GetSummariesAsync(string userId, int page, int pageSize);
-        Task<(object Dto, int StatusCode)> RequestSummaryGenerationAsync(string userId, GenerateSummaryRequestDto requestDto);
+        Task<(SummaryDetailsDto Dto, int StatusCode)> GenerateSummaryAsync(string userId, GenerateSummaryRequestDto requestDto);
     }
 }

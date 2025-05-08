@@ -1,8 +1,6 @@
 using MindfulDigger.DTOs;
 using MindfulDigger.Models;
 using Supabase;
-using Supabase.Postgrest.Extensions; // Added for Count() extension method
-using Microsoft.Extensions.Logging;
 using Supabase.Postgrest.Exceptions;
 
 namespace MindfulDigger.Services;
@@ -20,7 +18,7 @@ public class NoteService : INoteService
         _logger = logger;
     }
 
-    public async Task<CreateNoteResponse> CreateNoteAsync(CreateNoteRequest request, string userId)
+    public async Task<CreateNoteResponse> CreateNoteAsync(CreateNoteRequest request, Guid userId)
     {
         _logger.LogInformation("Attempting to create note for user {UserId}", userId);
 
@@ -30,7 +28,7 @@ public class NoteService : INoteService
     }
 
     public async Task<PaginatedResponse<NoteListItemDto>> GetUserNotesAsync(
-        string userId,
+        Guid userId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
@@ -67,7 +65,7 @@ public class NoteService : INoteService
         }
     }
 
-    private async Task ValidateNoteLimitAsync(string userId)
+    private async Task ValidateNoteLimitAsync(Guid userId)
     {
         try
         {
@@ -90,7 +88,7 @@ public class NoteService : INoteService
         }
     }
 
-    private async Task<Note> InsertNoteInternalAsync(CreateNoteRequest request, string userId)
+    private async Task<Note> InsertNoteInternalAsync(CreateNoteRequest request, Guid userId)
     {
         var newNote = new Note
         {
@@ -146,7 +144,7 @@ public class NoteService : INoteService
         };
     }
 
-    private async Task<long> GetTotalUserNotesCountAsync(string userId, CancellationToken cancellationToken)
+    private async Task<long> GetTotalUserNotesCountAsync(Guid userId, CancellationToken cancellationToken)
     {
         try
         {
@@ -162,7 +160,7 @@ public class NoteService : INoteService
         }
     }
 
-    private async Task<List<Note>> FetchPaginatedNotesAsync(string userId, int offset, int pageSize, CancellationToken cancellationToken)
+    private async Task<List<Note>> FetchPaginatedNotesAsync(Guid userId, int offset, int pageSize, CancellationToken cancellationToken)
     {
         try
         {

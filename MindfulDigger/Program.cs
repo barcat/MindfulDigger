@@ -52,6 +52,7 @@ builder.Services.AddSingleton<ISqlClintFactory, SupabaseClientFactory>();
 // Register custom services
 builder.Services.AddScoped<INoteService, NoteService>(); // Register NoteService
 builder.Services.AddScoped<ISummaryService, SummaryService>(); // Register SummaryService
+builder.Services.AddScoped<ILlmService, MockLlmService>(); // Register MockLlmService
 
 var app = builder.Build();
 
