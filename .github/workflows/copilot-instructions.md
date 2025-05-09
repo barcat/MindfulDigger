@@ -7,7 +7,6 @@
 #### ASP_NET
 
 - Use minimal APIs for simple endpoints in .NET 6+ applications to reduce boilerplate code
-- Implement the mediator pattern with MediatR for decoupling request handling and simplifying cross-cutting concerns
 - Implement proper exception handling with ExceptionFilter or middleware to provide consistent error responses
 - Use dependency injection with scoped lifetime for request-specific services and singleton for stateless services
 
@@ -27,6 +26,8 @@
 - When suggesting fixes for errors, explain the root cause and how the solution addresses it to build understanding. Ask for confirmation before proceeding.
 - Offer introducing basic test cases that demonstrate how the code works and common edge cases to consider
 
+## Frontend
+
 ### Guidelines for STYLING
 
 #### TAILWIND
@@ -41,3 +42,12 @@
 - Implement dark mode with the dark: variant
 - Use responsive variants (sm:, md:, lg:, etc.) for adaptive designs
 - Leverage state variants (hover:, focus:, active:, etc.) for interactive elements
+
+## DATABASE
+
+### Guidelines for SQL
+
+#### POSTGRES
+
+- Use connection pooling to manage database connections efficiently
+- Use materialized views for complex, frequently accessed read-only data
