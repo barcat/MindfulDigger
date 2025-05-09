@@ -14,13 +14,12 @@ public interface IFeedbackService
 }
 
 public class FeedbackService : IFeedbackService
-{
-    private readonly ISqlClintFactory _supabaseClientFactory;
+{    private readonly ISqlClientFactory _supabaseClientFactory;
     private readonly ISummaryService _summaryService;
     private readonly ILogger<FeedbackService> _logger;
 
     public FeedbackService(
-        ISqlClintFactory supabaseClientFactory,
+        ISqlClientFactory supabaseClientFactory,
         ISummaryService summaryService, 
         ILogger<FeedbackService> logger)
     {
@@ -58,10 +57,9 @@ public class FeedbackService : IFeedbackService
                 Rating = command.Rating,
                 CreationDate = DateTime.UtcNow
             }, StatusCodes.Status403Forbidden);
-        }
-
-        try
-        {            var supabase = await _supabaseClientFactory.CreateClient();
+        }        try
+        {
+            var supabase = await _supabaseClientFactory.CreateClient();
             var feedback = new Feedback
             {
                 SummaryId = command.SummaryId.ToString(),

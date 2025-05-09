@@ -15,11 +15,11 @@ public enum FeedbackRating
 public class Feedback : BaseModel
 {
     [PrimaryKey("summary_id, user_id", true)] // Composite key
-    public required string SummaryId { get; set; } // Added required
+    public string? SummaryId { get; set; } // Added required
 
     // UserId is part of the composite key, handled by PrimaryKey
     [Column("user_id")]
-    public required string UserId { get; set; } // Added required
+    public string? UserId { get; set; } // Added required
 
     [Column("rating")]
     [JsonConverter(typeof(StringEnumConverter))] // Ensure enum is serialized as string

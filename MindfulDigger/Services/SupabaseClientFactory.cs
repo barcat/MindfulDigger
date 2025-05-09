@@ -1,11 +1,10 @@
 using Supabase;
 using System;
 using Microsoft.Extensions.Options; // Add this using statement
-using System.Threading.Tasks; // Add this using statement
 
 namespace MindfulDigger.Services
 {
-    public class SupabaseClientFactory : ISqlClintFactory
+    public class SupabaseClientFactory : ISqlClientFactory
     {
         private readonly SupabaseSettings _settings;
 
@@ -31,9 +30,7 @@ namespace MindfulDigger.Services
 
             return client;
         }
-    }
-
-    public interface ISqlClintFactory
+    }    public interface ISqlClientFactory
     {
         Task<Client> CreateClient();
     }

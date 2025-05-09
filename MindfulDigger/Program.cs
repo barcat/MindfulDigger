@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddRazorPages();
 
 // Register the factory
-builder.Services.AddSingleton<ISqlClintFactory, SupabaseClientFactory>();
+builder.Services.AddSingleton<ISqlClientFactory, SupabaseClientFactory>();
 
 // Register custom services
 builder.Services.AddScoped<INoteService, NoteService>(); // Register NoteService
