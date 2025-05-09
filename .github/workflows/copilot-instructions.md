@@ -1,6 +1,4 @@
-# AI Rules for {{project-name}}
-
-{{project-description}}
+# AI Rules for MindfulDigger
 
 ## BACKEND
 
@@ -10,22 +8,24 @@
 
 - Use minimal APIs for simple endpoints in .NET 6+ applications to reduce boilerplate code
 - Implement the mediator pattern with MediatR for decoupling request handling and simplifying cross-cutting concerns
-- Use API controllers with model binding and validation attributes for {{complex_data_models}}
-- Apply proper response caching with cache profiles and ETags for improved performance on {{high_traffic_endpoints}}
 - Implement proper exception handling with ExceptionFilter or middleware to provide consistent error responses
 - Use dependency injection with scoped lifetime for request-specific services and singleton for stateless services
 
-#### ENTITY_FRAMEWORK
 
-- Use the repository and unit of work patterns to abstract data access logic and simplify testing
-- Implement eager loading with Include() to avoid N+1 query problems for {{entity_relationships}}
-- Use migrations for database schema changes and version control with proper naming conventions
-- Apply appropriate tracking behavior (AsNoTracking() for read-only queries) to optimize performance
-- Implement query optimization techniques like compiled queries for frequently executed database operations
-- Use value conversions for complex property transformations and proper handling of {{custom_data_types}}
+## CODING_PRACTICES
 
+### Guidelines for SUPPORT_LEVEL
 
-## FRONTEND
+#### SUPPORT_BEGINNER
+
+- When running in agent mode, execute up to 3 actions at a time and ask for approval or course correction afterwards.
+- Write code with clear variable names and include explanatory comments for non-obvious logic. Avoid shorthand syntax and complex patterns.
+- Provide full implementations rather than partial snippets. Include import statements, required dependencies, and initialization code.
+- Add defensive coding patterns and clear error handling. Include validation for user inputs and explicit type checking.
+- Suggest simpler solutions first, then offer more optimized versions with explanations of the trade-offs.
+- Briefly explain why certain approaches are used and link to relevant documentation or learning resources.
+- When suggesting fixes for errors, explain the root cause and how the solution addresses it to build understanding. Ask for confirmation before proceeding.
+- Offer introducing basic test cases that demonstrate how the code works and common edge cases to consider
 
 ### Guidelines for STYLING
 
