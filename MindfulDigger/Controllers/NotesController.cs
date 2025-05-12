@@ -10,7 +10,7 @@ namespace MindfulDigger.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // Require authentication for all actions in this controller
+// [Authorize] // Require authentication for all actions in this controller
 public class NotesController : ControllerBase
 {
     private readonly INoteService _noteService;
@@ -54,6 +54,8 @@ public class NotesController : ControllerBase
         }
 
         var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
+        var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+        var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
 
         try
         {
@@ -61,7 +63,9 @@ public class NotesController : ControllerBase
                 userId,
                 normalizedPage,
                 normalizedPageSize,
-                cancellationToken);
+                cancellationToken,
+                jwt,
+                refreshToken);
 
             return Ok(result);
         }
@@ -82,11 +86,13 @@ public class NotesController : ControllerBase
     {
         var userIdstrign = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         var userId = new Guid(userIdstrign);
+        var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+        var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
 
         try
         {
             _logger.LogInformation("User {UserId} attempting to create a note.", userId);
-            var createdNoteDto = await _noteService.CreateNoteAsync(request, userId);
+            var createdNoteDto = await _noteService.CreateNoteAsync(request, userId, jwt, refreshToken);
 
             // Return 201 Created with the created object
             // Using StatusCode directly as GetNoteById is not implemented yet

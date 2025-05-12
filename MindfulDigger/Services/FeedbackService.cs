@@ -83,10 +83,38 @@ public class FeedbackService : IFeedbackService
                 }, StatusCodes.Status500InternalServerError);
             }
 
+            if (string.IsNullOrEmpty(updatedFeedback.SummaryId) || string.IsNullOrEmpty(updatedFeedback.UserId))
+            {
+                _logger.LogError("Updated feedback contains null or empty SummaryId or UserId. SummaryId: '{SummaryId}', UserId: '{UserId}'", updatedFeedback.SummaryId, updatedFeedback.UserId);
+                return (new FeedbackResponseDto 
+                { 
+                    SummaryId = command.SummaryId, // Or some other appropriate default/error value
+                    UserId = command.UserId,       // Or some other appropriate default/error value
+                    Rating = command.Rating,
+                    CreationDate = DateTime.UtcNow
+                }, StatusCodes.Status500InternalServerError);
+            }
+
+            Guid parsedSummaryId, parsedUserId;
+            bool summaryIdParsed = Guid.TryParse(updatedFeedback.SummaryId, out parsedSummaryId);
+            bool userIdParsed = Guid.TryParse(updatedFeedback.UserId, out parsedUserId);
+
+            if (!summaryIdParsed || !userIdParsed)
+            {
+                _logger.LogError("Failed to parse Guid from updated feedback. SummaryId string: '{SummaryId}', UserId string: '{UserId}'", updatedFeedback.SummaryId, updatedFeedback.UserId);
+                return (new FeedbackResponseDto 
+                { 
+                    SummaryId = command.SummaryId, // Or some other appropriate default/error value
+                    UserId = command.UserId,       // Or some other appropriate default/error value
+                    Rating = command.Rating,
+                    CreationDate = DateTime.UtcNow
+                }, StatusCodes.Status500InternalServerError);
+            }
+
             var dto = new FeedbackResponseDto
             {
-                SummaryId = Guid.Parse(updatedFeedback.SummaryId),
-                UserId = Guid.Parse(updatedFeedback.UserId),
+                SummaryId = parsedSummaryId,
+                UserId = parsedUserId,
                 Rating = updatedFeedback.Rating,
                 CreationDate = updatedFeedback.CreationDate
             };

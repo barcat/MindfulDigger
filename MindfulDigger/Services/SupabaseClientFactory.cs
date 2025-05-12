@@ -30,7 +30,9 @@ namespace MindfulDigger.Services
 
             return client;
         }
-    }    public interface ISqlClientFactory
+    }
+
+    public interface ISqlClientFactory // Moved ISqlClientFactory into MindfulDigger.Services namespace
     {
         Task<Client> CreateClient();
     }

@@ -1,0 +1,97 @@
+<!-- 
+    CreateNoteModal - komponent modala do tworzenia nowej notatki
+    
+    Parametry Alpine.js przekazane w rodzicu:
+    - isModalOpen: flaga kontrolująca widoczność modala
+    - totalCount: liczba istniejących notatek użytkownika (do walidacji limitu)
+    - errorMessage: komunikat błędu walidacji/API
+    - newNoteContent: treść nowej notatki
+    - isValidContent: flaga wskazująca czy treść jest poprawna
+    - isSubmitting: flaga wskazująca czy trwa zapis
+    - closeModal(): funkcja zamykająca modal
+    - validateContent(): funkcja walidująca treść notatki
+    - saveNote(): funkcja zapisująca notatkę
+ -->
+
+<div x-show="isModalOpen" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+
+    <div x-show="isModalOpen" 
+         @@click.away="closeModal"
+         @@keydown.escape.window="closeModal"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform scale-95"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-95"
+         class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-4">
+
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800">Nowa notatka</h2>
+            <button @@click="closeModal" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Komunikat o limicie -->
+        <div x-show="totalCount >= 100" class="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+            Osiągnięto limit 100 notatek. Usuń niektóre notatki, aby móc dodać nowe.
+        </div>
+
+        <!-- Komunikat błędu -->
+        <div x-show="errorMessage" class="mb-4 p-3 bg-red-50 text-red-700 rounded-md" x-text="errorMessage"></div>
+
+        <div class="mb-4">
+            <textarea 
+                x-model="newNoteContent" 
+                @@input="validateContent"
+                placeholder="Treść notatki..." 
+                :disabled="totalCount >= 100 || isSubmitting"
+                class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows="6"
+                aria-label="Treść notatki"></textarea>
+            <div class="flex justify-between mt-1">
+                <div x-show="newNoteContent.length > 0" class="text-sm" :class="{'text-red-600': newNoteContent.length > 990}">
+                    <span x-text="newNoteContent.length"></span>/1000
+                </div>
+                <div x-show="newNoteContent.trim().length === 0" class="text-sm text-red-600">
+                    Treść notatki jest wymagana
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+            <button 
+                @@click="closeModal" 
+                :disabled="isSubmitting" 
+                class="py-2 px-4 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+                aria-label="Anuluj">
+                Anuluj
+            </button>
+            <button 
+                @@click="saveNote" 
+                :disabled="!isValidContent || isSubmitting || totalCount >= 100" 
+                :class="{ 'opacity-50 cursor-not-allowed': !isValidContent || isSubmitting || totalCount >= 100 }"
+                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                aria-label="Zapisz notatkę">
+                <span x-show="!isSubmitting">Zapisz</span>
+                <span x-show="isSubmitting" class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Zapisywanie...
+                </span>
+            </button>
+        </div>
+    </div>
+</div>

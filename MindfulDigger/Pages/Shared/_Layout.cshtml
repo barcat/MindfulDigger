@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MindfulDigger</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - MindfulDigger</title>    
+    @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notes.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MindfulDigger.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -17,10 +18,13 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">                   
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Notes">Notatki</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
@@ -35,18 +39,23 @@
             @RenderBody()
         </main>
     </div>
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - MindfulDigger - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script defer src="~/lib/alpinejs/dist/cdn.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Komponent powiadomień, dostępny globalnie -->
+    @* <partial name="_Notifications" /> *@
 
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- <script src="~/js/site.js" asp-append-version="true"></script> -->
+    <!-- Tailwind na końcu, by nadpisał Bootstrapa -->
+    <link rel="stylesheet" href="~/css/tailwind.generated.css" asp-append-version="true" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/dist/tailwind.min.css" rel="stylesheet"> -->
+
 </body>
 </html>

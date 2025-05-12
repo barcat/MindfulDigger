@@ -3,27 +3,39 @@ using MindfulDigger.Models;
 using Supabase;
 using Supabase.Postgrest.Exceptions;
 
+
 namespace MindfulDigger.Services;
 
 public class NoteService : INoteService
 {
-    private readonly Client _supabaseClient;
+    private readonly ISqlClientFactory _clientFactory;
     private readonly ILogger<NoteService> _logger;
     private const int MaxNotesPerUser = 100; // Define the note limit
     private const int SnippetLength = 120; // Changed to match the implementation plan
 
-    public NoteService(Client supabaseClient, ILogger<NoteService> logger)
+    public NoteService(ISqlClientFactory clientFactory, ILogger<NoteService> logger)
     {
-        _supabaseClient = supabaseClient;
+        _clientFactory = clientFactory;
         _logger = logger;
     }
+    
+    private async Task<Client> GetClientAsync(string jwt, string refreshToken)
+    {
+        var client = await _clientFactory.CreateClient();
 
-    public async Task<CreateNoteResponse> CreateNoteAsync(CreateNoteRequest request, Guid userId)
+        if (!string.IsNullOrEmpty(jwt))
+            await client.Auth.SetSession(jwt, refreshToken);
+
+        return client;
+    }
+
+    public async Task<CreateNoteResponse> CreateNoteAsync(CreateNoteRequest request, Guid userId, string jwt, string refreshToken)
     {
         _logger.LogInformation("Attempting to create note for user {UserId}", userId);
 
-        await ValidateNoteLimitAsync(userId);
-        var createdNote = await InsertNoteInternalAsync(request, userId);
+
+        await ValidateNoteLimitAsync(userId, jwt, refreshToken);
+        var createdNote = await InsertNoteInternalAsync(request, userId, jwt, refreshToken);
         return MapToCreateNoteResponse(createdNote);
     }
 
@@ -31,7 +43,9 @@ public class NoteService : INoteService
         Guid userId,
         int page,
         int pageSize,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string jwt, 
+        string refreshToken)
     {
         _logger.LogInformation("Fetching notes for user {UserId}, page {Page}, pageSize {PageSize}",
             userId, page, pageSize);
@@ -40,8 +54,8 @@ public class NoteService : INoteService
         {
             var offset = (page - 1) * pageSize;
 
-            var totalCount = await GetTotalUserNotesCountAsync(userId, cancellationToken);
-            var notes = await FetchPaginatedNotesAsync(userId, offset, pageSize, cancellationToken);
+            var totalCount = await GetTotalUserNotesCountAsync(userId, cancellationToken, jwt, refreshToken);
+            var notes = await FetchPaginatedNotesAsync(userId, offset, pageSize, cancellationToken, jwt, refreshToken);
             var noteDtos = MapNotesToListItemDtos(notes);
 
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -65,11 +79,24 @@ public class NoteService : INoteService
         }
     }
 
-    private async Task ValidateNoteLimitAsync(Guid userId)
+    public async Task<PaginatedResponse<NoteListItemDto>> GetUserNotesAsync(
+        Guid userId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken,
+        string jwt
+    )
+    {
+        // Call the existing implementation with a default refreshToken (empty string)
+        return await GetUserNotesAsync(userId, page, pageSize, cancellationToken, jwt, string.Empty);
+    }
+
+    private async Task ValidateNoteLimitAsync(Guid userId, string jwt, string refreshToken)
     {
         try
         {
-            var countResponse = await _supabaseClient
+            var client = await GetClientAsync(jwt, refreshToken);
+            var countResponse = await client
                 .From<Note>()
                 .Where(n => n.UserId == userId)
                 .Count(Supabase.Postgrest.Constants.CountType.Exact);
@@ -88,7 +115,7 @@ public class NoteService : INoteService
         }
     }
 
-    private async Task<Note> InsertNoteInternalAsync(CreateNoteRequest request, Guid userId)
+    private async Task<Note> InsertNoteInternalAsync(CreateNoteRequest request, Guid userId, string jwt, string refreshToken)
     {
         var newNote = new Note
         {
@@ -99,7 +126,8 @@ public class NoteService : INoteService
 
         try
         {
-            var insertResponse = await _supabaseClient.From<Note>().Insert(newNote);
+            var client = await GetClientAsync(jwt, refreshToken);
+            var insertResponse = await client.From<Note>().Insert(newNote);
 
             if (insertResponse.Models == null || insertResponse.Models.Count == 0)
             {
@@ -144,11 +172,12 @@ public class NoteService : INoteService
         };
     }
 
-    private async Task<long> GetTotalUserNotesCountAsync(Guid userId, CancellationToken cancellationToken)
+    private async Task<long> GetTotalUserNotesCountAsync(Guid userId, CancellationToken cancellationToken, string jwt, string refreshToken)
     {
         try
         {
-            var countQuery = _supabaseClient
+            var client = await GetClientAsync(jwt, refreshToken);
+            var countQuery = client
                 .From<Note>()
                 .Where(n => n.UserId == userId);
             return await countQuery.Count(Supabase.Postgrest.Constants.CountType.Exact, cancellationToken);
@@ -160,11 +189,12 @@ public class NoteService : INoteService
         }
     }
 
-    private async Task<List<Note>> FetchPaginatedNotesAsync(Guid userId, int offset, int pageSize, CancellationToken cancellationToken)
+    private async Task<List<Note>> FetchPaginatedNotesAsync(Guid userId, int offset, int pageSize, CancellationToken cancellationToken, string jwt, string refreshToken)
     {
         try
         {
-            var notesQueryBuilder = _supabaseClient
+            var client = await GetClientAsync(jwt, refreshToken);
+            var notesQueryBuilder = client
                 .From<Note>()
                 .Where(n => n.UserId == userId)
                 .Order(n => n.CreationDate, Supabase.Postgrest.Constants.Ordering.Descending)

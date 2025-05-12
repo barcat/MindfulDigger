@@ -5,11 +5,11 @@ namespace MindfulDigger.Services
 {
     public class SummaryService : ISummaryService
     {
-        private readonly SupabaseClientFactory _supabaseClientFactory; // Corrected type name from previous edits if necessary, ensure it's this
+        private readonly ISqlClientFactory _supabaseClientFactory;
         private readonly ILogger<SummaryService> _logger;
         private readonly ILlmService _llmService; // Added ILlmService
 
-        public SummaryService(SupabaseClientFactory supabaseClientFactory, ILogger<SummaryService> logger, ILlmService llmService) // Added ILlmService
+        public SummaryService(ISqlClientFactory supabaseClientFactory, ILogger<SummaryService> logger, ILlmService llmService) // Added ILlmService
         {
             _supabaseClientFactory = supabaseClientFactory ?? throw new ArgumentNullException(nameof(supabaseClientFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -155,8 +155,14 @@ namespace MindfulDigger.Services
             }
 
             var allowedPeriods = new List<string> { "last_7_days", "last_14_days", "last_30_days", "last_10_notes" };
+            if (string.IsNullOrWhiteSpace(requestDto.Period))
+            {
+                _logger.LogWarning("Period is null or whitespace.");
+                return (new SummaryDetailsDto { Content = "Period cannot be null or whitespace." }, StatusCodes.Status400BadRequest);
+            }
+
             var requestedPeriod = requestDto.Period.ToLowerInvariant();
-            if (string.IsNullOrWhiteSpace(requestedPeriod) || !allowedPeriods.Contains(requestedPeriod))
+            if (!allowedPeriods.Contains(requestedPeriod))
             {
                 _logger.LogWarning("Invalid period specified: {Period}", requestDto.Period);
                 // Returning a placeholder DTO for error
@@ -184,8 +190,8 @@ namespace MindfulDigger.Services
                     if (notesResponse.Models != null && notesResponse.Models.Any())
                     {
                         notesForSummary = notesResponse.Models;
-                        periodStart = notesForSummary.Last().CreationDate; 
-                        periodEnd = notesForSummary.First().CreationDate; 
+                        periodStart = notesForSummary.Last()!.CreationDate; 
+                        periodEnd = notesForSummary.First()!.CreationDate; 
                         periodDescription = $"Last {notesForSummary.Count} notes";
                         _logger.LogInformation("Found {NoteCount} notes for 'last_10_notes'. Period: {PeriodStart} to {PeriodEnd}", notesForSummary.Count, periodStart, periodEnd);
                     }
