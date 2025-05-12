@@ -1,5 +1,10 @@
 # AI Rules for MindfulDigger
 
+## ENVIRONMENT
+
+- The default operating system is Windows.
+- The default shell is PowerShell (powershell.exe). All terminal commands and scripts should be compatible with PowerShell and Windows paths.
+
 ## BACKEND
 
 ### Guidelines for DOTNET
