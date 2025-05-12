@@ -20,3 +20,4 @@ MindfulDigger/x64/
 MindfulDigger/[Bb]uild/
 MindfulDigger.Tests/bin/
 MindfulDigger.Tests/obj/
+MindfulDigger/.env
