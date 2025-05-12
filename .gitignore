@@ -21,3 +21,5 @@ MindfulDigger/[Bb]uild/
 MindfulDigger.Tests/bin/
 MindfulDigger.Tests/obj/
 MindfulDigger/.env
+node_modules/
+obj/
