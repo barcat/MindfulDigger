@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build and Run MindfulDigger",
+			"command": "dotnet build MindfulDigger.sln ; dotnet run --project MindfulDigger\\\\MindfulDigger.csproj",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			]
+		}
+	]
+}
