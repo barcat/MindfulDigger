@@ -1,4 +1,5 @@
 using MindfulDigger.DTOs;
+using MindfulDigger.Models;
 
 namespace MindfulDigger.Services;
 
@@ -19,4 +20,6 @@ public interface INoteService
         string jwt,
         string refreshToken
     );
+
+    Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken);
 }

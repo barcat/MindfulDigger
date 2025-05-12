@@ -79,16 +79,29 @@ public class NoteService : INoteService
         }
     }
 
-    public async Task<PaginatedResponse<NoteListItemDto>> GetUserNotesAsync(
-        Guid userId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken,
-        string jwt
-    )
+    public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
     {
-        // Call the existing implementation with a default refreshToken (empty string)
-        return await GetUserNotesAsync(userId, page, pageSize, cancellationToken, jwt, string.Empty);
+        _logger.LogInformation("Fetching note {NoteId} for user {UserId}", noteId, userId);
+        try
+        {
+            var client = await GetClientAsync(jwt, refreshToken);
+            var response = await client
+                .From<Note>()
+                .Where(n => n.Id == noteId.ToString() && n.UserId == userId)
+                .Single();
+
+            if (response == null)
+            {
+                _logger.LogWarning("Note {NoteId} not found for user {UserId}", noteId, userId);
+                return null;
+            }
+            return response;
+        }
+        catch (PostgrestException ex)
+        {
+            _logger.LogError(ex, "Database error while fetching note {NoteId} for user {UserId}", noteId, userId);
+            throw;
+        }
     }
 
     private async Task ValidateNoteLimitAsync(Guid userId, string jwt, string refreshToken)
