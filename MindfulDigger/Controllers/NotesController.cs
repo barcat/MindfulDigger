@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MindfulDigger.DTOs;
 using MindfulDigger.Services;
 using System.Security.Claims;
-using Microsoft.Extensions.Logging;
-using static MindfulDigger.Services.INoteService; // For UserNoteLimitExceededException
+using static MindfulDigger.Services.INoteService;
 
 namespace MindfulDigger.Controllers;
 
@@ -112,11 +111,35 @@ public class NotesController : ControllerBase
         }
     }
 
-    // Placeholder for potential future GET endpoint referenced by CreatedAtAction
-    // [HttpGet("{id}")]
-    // public async Task<IActionResult> GetNoteById(string id)
-    // {
-    //     // TODO: Implement retrieval logic
-    //     return NotFound(); // Placeholder
-    // }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetNoteById(string id)
+    {
+        if (!Guid.TryParse(id, out var noteId))
+        {
+            return BadRequest(new { message = "Invalid note id format." });
+        }
+
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (!Guid.TryParse(userIdStr, out var userId))
+        {
+            return Unauthorized();
+        }
+        var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+        var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
+
+        try
+        {
+            var note = await _noteService.GetNoteByIdAsync(noteId, userId, jwt, refreshToken);
+            if (note == null)
+            {
+                return NotFound();
+            }
+            return Ok(note);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving note {NoteId} for user {UserId}", noteId, userId);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the note." });
+        }
+    }
 }
