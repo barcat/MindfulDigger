@@ -3,8 +3,8 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "alpinejs@3.14.1",
-      "destination": "wwwroot/lib/alpinejs/"
+      "library": "alpinejs@3.14.9",
+      "destination": "MindfulDigger/wwwroot/lib/alpinejs/"
     }
   ]
 }
