@@ -54,7 +54,10 @@
             <template x-for="summary in summaries" :key="summary.id">
                 <div 
                     @@click="showSummaryDetails(summary.id)"
-                    class="bg-white shadow rounded-lg p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow">
+                    class="bg-white shadow rounded-lg p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow"
+                    role="button"
+                    tabindex="0"
+                    @@keydown.enter="showSummaryDetails(summary.id)">
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-lg font-semibold" x-text="summary.periodDescription"></h3>
@@ -89,28 +92,35 @@
     </div>
 
     <!-- Generate Summary Modal -->
-    <div x-show="showGenerateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div @@click.away="closeGenerateModal" class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h2 class="text-xl font-bold mb-4">Generuj podsumowanie</h2>
+    <div x-show="showGenerateModal" 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         role="dialog"
+         aria-labelledby="modal-title"
+         @@keydown.escape="closeGenerateModal()"
+         x-trap.noscroll="showGenerateModal">
+        <div @@click.away="closeGenerateModal" 
+             class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+             role="document">
+            <h2 id="modal-title" class="text-xl font-bold mb-4">Generuj podsumowanie</h2>
             
             <div class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Wybierz okres</label>
+                <div role="radiogroup" aria-labelledby="period-label">
+                    <label id="period-label" class="block text-gray-700 text-sm font-bold mb-2">Wybierz okres</label>
                     <div class="space-y-2">
                         <label class="flex items-center">
-                            <input type="radio" x-model="selectedPeriod" value="7days" class="mr-2">
+                            <input type="radio" x-model="selectedPeriod" value="last_7_days" class="mr-2">
                             <span>Ostatnie 7 dni</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="radio" x-model="selectedPeriod" value="14days" class="mr-2">
+                            <input type="radio" x-model="selectedPeriod" value="last_14_days" class="mr-2">
                             <span>Ostatnie 14 dni</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="radio" x-model="selectedPeriod" value="30days" class="mr-2">
+                            <input type="radio" x-model="selectedPeriod" value="last_30_days" class="mr-2">
                             <span>Ostatnie 30 dni</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="radio" x-model="selectedPeriod" value="10notes" class="mr-2">
+                            <input type="radio" x-model="selectedPeriod" value="last_10_notes" class="mr-2">
                             <span>Ostatnie 10 notatek</span>
                         </label>
                     </div>
@@ -119,12 +129,14 @@
                 <div class="flex justify-end space-x-3">
                     <button 
                         @@click="closeGenerateModal"
+                        type="button"
                         class="px-4 py-2 border rounded hover:bg-gray-100">
                         Anuluj
                     </button>
                     <button 
                         @@click="generateSummary"
                         :disabled="!selectedPeriod || generating"
+                        type="button"
                         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
                         Generuj
                     </button>
@@ -160,13 +172,26 @@
                     try {
                         this.loading = true;
                         this.error = null;
-                        const response = await fetch(`/api/Summaries?page=${this.pagination.currentPage}&pageSize=${this.pagination.pageSize}`);
+                        const response = await fetch(`/api/Summaries?page=${this.pagination.currentPage}&pageSize=${this.pagination.pageSize}`, {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
                         
+                        const data = await response.json();
+
                         if (!response.ok) {
-                            throw new Error('Nie udało się pobrać podsumowań');
+                            switch (response.status) {
+                                case 400:
+                                    throw new Error(data.error || 'Nieprawidłowe parametry strony');
+                                case 401:
+                                    window.location.href = '/Login'; // Przekieruj do logowania
+                                    return;
+                                default:
+                                    throw new Error(data.error || 'Nie udało się pobrać podsumowań');
+                            }
                         }
 
-                        const data = await response.json();
                         this.summaries = data.summaries;
                         this.pagination = data.pagination;
                         this.newSummariesCount = this.summaries.filter(s => !s.isRead).length;
@@ -185,19 +210,37 @@
                         const response = await fetch('/api/Summaries/generate', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
                             },
                             body: JSON.stringify({
                                 period: this.selectedPeriod
                             })
                         });
 
+                        const data = await response.json();
+
                         if (!response.ok) {
-                            throw new Error('Nie udało się wygenerować podsumowania');
+                            switch (response.status) {
+                                case 400:
+                                    throw new Error(data.detail || 'Nieprawidłowy okres lub brak notatek w wybranym okresie');
+                                case 401:
+                                    window.location.href = '/Login'; // Przekieruj do logowania
+                                    return;
+                                case 429:
+                                    throw new Error('Przekroczono limit generowania podsumowań. Spróbuj ponownie później.');
+                                case 503:
+                                    throw new Error('Usługa generowania podsumowań jest tymczasowo niedostępna. Spróbuj ponownie później.');
+                                default:
+                                    throw new Error(data.detail || 'Nie udało się wygenerować podsumowania');
+                            }
                         }
 
                         await this.loadSummaries();
                         this.closeGenerateModal();
+                        
+                        // Wyczyść błędy po udanej operacji
+                        this.error = null;
                     } catch (err) {
                         this.error = err.message;
                     } finally {
