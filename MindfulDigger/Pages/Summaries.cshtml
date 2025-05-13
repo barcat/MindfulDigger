@@ -1,0 +1,238 @@
+@page
+@model MindfulDigger.Pages.SummariesModel
+@{
+    ViewData["Title"] = "Podsumowania";
+}
+
+<div x-data="summaryPage()" class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <!-- Header Summary Component -->
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Podsumowania</h1>
+            <div x-show="newSummariesCount > 0" class="bg-blue-500 text-white px-3 py-1 rounded-full">
+                <span x-text="newSummariesCount"></span> nowe
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Summary Button -->
+    <div class="mb-6">
+        <button 
+            @@click="openGenerateModal"
+            :disabled="generating"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+            <span x-show="!generating">Generuj podsumowanie</span>
+            <span x-show="generating" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generowanie...
+            </span>
+        </button>
+    </div>
+
+    <!-- Summary List -->
+    <div>
+        <!-- Loading State -->
+        <div x-show="loading" class="flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+            <span x-text="error"></span>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="!loading && !error && summaries.length === 0" class="text-center py-8">
+            <p class="text-gray-600">Nie masz jeszcze żadnych podsumowań. Kliknij przycisk "Generuj podsumowanie" aby stworzyć pierwsze.</p>
+        </div>
+
+        <!-- Summary Items -->
+        <div x-show="!loading && !error && summaries.length > 0">
+            <template x-for="summary in summaries" :key="summary.id">
+                <div 
+                    @@click="showSummaryDetails(summary.id)"
+                    class="bg-white shadow rounded-lg p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold" x-text="summary.periodDescription"></h3>
+                            <p class="text-gray-600 mt-1" x-text="formatDate(summary.generationDate)"></p>
+                        </div>
+                        <div x-show="!summary.isAutomatic" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                            Ręczne
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Pagination -->
+            <div x-show="pagination.totalPages > 1" class="mt-6 flex justify-center space-x-2">
+                <button 
+                    @@click="changePage(pagination.currentPage - 1)"
+                    :disabled="pagination.currentPage === 1"
+                    class="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50">
+                    Poprzednia
+                </button>
+                <span class="px-4 py-2">
+                    Strona <span x-text="pagination.currentPage"></span> z <span x-text="pagination.totalPages"></span>
+                </span>
+                <button 
+                    @@click="changePage(pagination.currentPage + 1)"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    class="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50">
+                    Następna
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Summary Modal -->
+    <div x-show="showGenerateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div @@click.away="closeGenerateModal" class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 class="text-xl font-bold mb-4">Generuj podsumowanie</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Wybierz okres</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="7days" class="mr-2">
+                            <span>Ostatnie 7 dni</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="14days" class="mr-2">
+                            <span>Ostatnie 14 dni</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="30days" class="mr-2">
+                            <span>Ostatnie 30 dni</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="10notes" class="mr-2">
+                            <span>Ostatnie 10 notatek</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button 
+                        @@click="closeGenerateModal"
+                        class="px-4 py-2 border rounded hover:bg-gray-100">
+                        Anuluj
+                    </button>
+                    <button 
+                        @@click="generateSummary"
+                        :disabled="!selectedPeriod || generating"
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Generuj
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function summaryPage() {
+            return {
+                summaries: [],
+                loading: true,
+                error: null,
+                generating: false,
+                newSummariesCount: 0,
+                showGenerateModal: false,
+                selectedPeriod: null,
+                pagination: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    totalPages: 0
+                },
+
+                async init() {
+                    await this.loadSummaries();
+                },
+
+                async loadSummaries() {
+                    try {
+                        this.loading = true;
+                        this.error = null;
+                        const response = await fetch(`/api/Summaries?page=${this.pagination.currentPage}&pageSize=${this.pagination.pageSize}`);
+                        
+                        if (!response.ok) {
+                            throw new Error('Nie udało się pobrać podsumowań');
+                        }
+
+                        const data = await response.json();
+                        this.summaries = data.summaries;
+                        this.pagination = data.pagination;
+                        this.newSummariesCount = this.summaries.filter(s => !s.isRead).length;
+                    } catch (err) {
+                        this.error = err.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async generateSummary() {
+                    if (!this.selectedPeriod) return;
+
+                    try {
+                        this.generating = true;
+                        const response = await fetch('/api/Summaries/generate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                period: this.selectedPeriod
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Nie udało się wygenerować podsumowania');
+                        }
+
+                        await this.loadSummaries();
+                        this.closeGenerateModal();
+                    } catch (err) {
+                        this.error = err.message;
+                    } finally {
+                        this.generating = false;
+                    }
+                },
+
+                async showSummaryDetails(id) {
+                    window.location.href = `/Summaries/${id}`;
+                },
+
+                async changePage(page) {
+                    if (page < 1 || page > this.pagination.totalPages) return;
+                    this.pagination.currentPage = page;
+                    await this.loadSummaries();
+                },
+
+                openGenerateModal() {
+                    this.showGenerateModal = true;
+                    this.selectedPeriod = null;
+                },
+
+                closeGenerateModal() {
+                    this.showGenerateModal = false;
+                    this.selectedPeriod = null;
+                },
+
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleDateString('pl-PL', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+            }
+        }
+    </script>
+}
