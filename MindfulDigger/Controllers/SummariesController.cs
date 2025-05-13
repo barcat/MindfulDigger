@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Http; // Required for StatusCodes
 
 namespace MindfulDigger.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SummariesController : ControllerBase
@@ -130,11 +129,8 @@ namespace MindfulDigger.Controllers
         }
 
         [HttpPost("generate")]
-        // [Authorize] // Already on controller level
         public async Task<IActionResult> GenerateSummary([FromBody] GenerateSummaryRequestDto requestDto)
         {
-            // Model validation is handled by [ApiController] attribute
-            
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
             if (string.IsNullOrEmpty(userId))
             {
