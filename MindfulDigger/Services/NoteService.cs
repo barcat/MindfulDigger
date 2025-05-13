@@ -54,7 +54,7 @@ public class NoteService : INoteService
         {
             var offset = (page - 1) * pageSize;
 
-            var totalCount = await GetTotalUserNotesCountAsync(userId, cancellationToken, jwt, refreshToken);
+            var totalCount = await GetTotalUserNotesCountAsync(userId, jwt, refreshToken, cancellationToken);
             var notes = await FetchPaginatedNotesAsync(userId, offset, pageSize, cancellationToken, jwt, refreshToken);
             var noteDtos = MapNotesToListItemDtos(notes);
 
@@ -85,10 +85,14 @@ public class NoteService : INoteService
         try
         {
             var client = await GetClientAsync(jwt, refreshToken);
-            var response = await client
+            var noteIdString = noteId.ToString();
+            var notes = await client
                 .From<Note>()
-                .Where(n => n.Id == noteId.ToString() && n.UserId == userId)
-                .Single();
+                .Where(n => n.Id == noteIdString)
+                .Where(n => n.UserId == userId)
+                .Get();
+
+            var response = notes.Models.FirstOrDefault();
 
             if (response == null)
             {
@@ -172,7 +176,7 @@ public class NoteService : INoteService
     private CreateNoteResponse MapToCreateNoteResponse(Note createdNote)
     {
         var contentSnippet = createdNote.Content.Length > SnippetLength
-            ? createdNote.Content.Substring(0, SnippetLength) + "..."
+            ? string.Concat(createdNote.Content.AsSpan(0, SnippetLength), "...")
             : createdNote.Content;
 
         return new CreateNoteResponse
@@ -185,7 +189,7 @@ public class NoteService : INoteService
         };
     }
 
-    private async Task<long> GetTotalUserNotesCountAsync(Guid userId, CancellationToken cancellationToken, string jwt, string refreshToken)
+    private async Task<long> GetTotalUserNotesCountAsync(Guid userId, string jwt, string refreshToken, CancellationToken cancellationToken)
     {
         try
         {

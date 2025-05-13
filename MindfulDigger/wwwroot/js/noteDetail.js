@@ -36,14 +36,18 @@ document.addEventListener('alpine:init', () => {
 
                 if (!response.ok) {
                     throw new Error('Wystąpił błąd podczas pobierania notatki');
-                }
-
-                const data = await response.json();
+                }                const data = await response.json();
                 this.note = {
                     id: data.id,
                     content: data.content,
                     creationDate: data.creationDate
                 };
+                
+                // Aktualizacja tytułu strony
+                const snippet = data.content.length > 50 
+                    ? data.content.substring(0, 50) + '...' 
+                    : data.content;
+                document.title = `${snippet} - Szczegóły notatki`;
             } catch (error) {
                 console.error('Error fetching note:', error);
                 this.error = 'Nie udało się pobrać notatki';
