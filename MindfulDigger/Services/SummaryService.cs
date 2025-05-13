@@ -224,7 +224,9 @@ namespace MindfulDigger.Services
                     _logger.LogInformation("Calculated period for {RequestedPeriod}: {PeriodStart} to {PeriodEnd}", requestedPeriod, periodStart, periodEnd);
 
                     var notesInPeriodResponse = await supabase.From<Note>()
-                                                              .Where(n => n.UserId == userGuid && n.CreationDate >= periodStart && n.CreationDate <= periodEnd)
+                                                              .Where(n => n.UserId == userGuid)
+                                                              .Where(n => n.CreationDate >= periodStart)
+                                                              .Where(n => n.CreationDate <= periodEnd)
                                                               .Get(); 
                     
                     if (notesInPeriodResponse.Models != null && notesInPeriodResponse.Models.Any())
