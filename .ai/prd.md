@@ -142,13 +142,6 @@ Następujące funkcjonalności nie wchodzą w zakres MVP:
     -   Użytkownik może zmienić swoją ocenę.
     -   Interfejs wizualnie wskazuje, która opcja została wybrana (jeśli została).
 
--   ID: US-009
--   Tytuł: Usuwanie nieaktywnego konta
--   Opis: Jako administrator systemu chcę, aby konta użytkowników, którzy nie logowali się przez 3 miesiące, były automatycznie usuwane wraz z ich danymi, aby zarządzać zasobami i przestrzegać polityki retencji.
--   Kryteria akceptacji:
-    -   System regularnie sprawdza datę ostatniego logowania każdego użytkownika.
-    -   Jeśli użytkownik nie logował się przez okres 3 miesięcy lub dłużej, jego konto oraz wszystkie powiązane dane (notatki, podsumowania, oceny) są trwale usuwane z systemu.
-    -   Proces usuwania działa automatycznie w tle.
 
 ## 6. Metryki sukcesu
 -   MS-001: Przydatność podsumowań: Co najmniej 80% ocen podsumowań (automatycznych i ręcznych) to oceny pozytywne ("kciuk w górę"). Mierzone jako (liczba ocen "kciuk w górę") / (łączna liczba ocen "kciuk w górę" + "kciuk w dół") w danym okresie.
