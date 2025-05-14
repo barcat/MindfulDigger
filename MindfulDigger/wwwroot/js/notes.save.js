@@ -1,49 +1,47 @@
 import { resetModalState } from './notes.modal.js';
 
-export function saveNote(context) {
-    if (!context.isValidContent || context.isSubmitting || context.totalCount >= 100) return;
+export async function saveNote(context) {
+    // Validate the content before saving
+    context.validateContent();
+    
+    if (!context.isValidContent) {
+        return;
+    }
+    
     context.isSubmitting = true;
-    context.errorMessage = '';
-    fetch('/api/notes', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({ content: context.newNoteContent })
-    })
-    .then(response => {
-        if (response.status === 401) {
-            window.location.href = '/Identity/Account/Login';
-            throw new Error('Unauthorized');
-        }
-        if (response.status === 400) {
-            return response.json().then(data => {
-                throw new Error(data.message || 'Walidacja nie powiodła się');
-            });
-        }
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        context.notes.unshift({
-            id: data.id,
-            contentSnippet: data.contentSnippet,
-            creationDate: data.creationDate
+    
+    try {
+        const response = await fetch('/api/notes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: JSON.stringify({
+                content: context.newNoteContent
+            })
         });
-        context.totalCount++;
-        context.closeModal();
-        resetModalState(context);
-        context.showSuccessNotification('Notatka została dodana');
-    })
-    .catch(error => {
-        console.error('Error creating note:', error);
-        context.errorMessage = error.message || 'Wystąpił błąd podczas zapisywania notatki';
-    })
-    .finally(() => {
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Add the new note to the beginning of the notes array
+            context.notes.unshift(data);
+            context.totalCount++;
+            
+            // Show success notification
+            context.showSuccessNotification('Notatka została dodana!');
+            
+            // Call handleSuccessfulSubmit which will close the modal
+            context.handleSuccessfulSubmit();
+        } else {
+            const errorData = await response.json();
+            context.errorMessage = errorData.message || 'Wystąpił błąd podczas zapisywania notatki.';
+            context.isSubmitting = false;
+        }
+    } catch (error) {
+        console.error('Error saving note:', error);
+        context.errorMessage = 'Wystąpił błąd podczas zapisywania notatki.';
         context.isSubmitting = false;
-    });
+    }
 }

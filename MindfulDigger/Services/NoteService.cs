@@ -137,8 +137,8 @@ public class NoteService : INoteService
         var newNote = new Note
         {
             UserId = userId,
-            Content = request.Content
-            // Id and CreationDate will be set by Supabase/DB
+            Content = request.Content,
+            CreationDate = DateTime.Now,
         };
 
         try

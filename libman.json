@@ -5,6 +5,11 @@
     {
       "library": "alpinejs@3.14.9",
       "destination": "MindfulDigger/wwwroot/lib/alpinejs/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@alpinejs/focus@3.14.9",
+      "destination": "MindfulDigger/wwwroot/lib/alpinejs-focus/"
     }
   ]
 }

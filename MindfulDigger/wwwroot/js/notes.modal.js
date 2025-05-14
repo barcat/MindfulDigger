@@ -31,3 +31,9 @@ export function resetModalState(context) {
     context.errorMessage = '';
     context.isValidContent = false;
 }
+
+export function handleSuccessfulSubmit(context) {
+    context.isSubmitting = false;
+    context.isModalOpen = false;
+    resetModalState(context);
+}

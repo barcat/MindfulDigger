@@ -1,6 +1,6 @@
 import { setupInfiniteScroll } from './notes.infiniteScroll.js';
 import { fetchNotes, loadMoreNotes } from './notes.fetch.js';
-import { openModal, closeModal, validateContent } from './notes.modal.js';
+import { openModal, closeModal, validateContent, handleSuccessfulSubmit } from './notes.modal.js';
 import { saveNote } from './notes.save.js';
 import { showSuccessNotification, goToNoteDetails, formatDate } from './notes.utils.js';
 
@@ -65,6 +65,10 @@ document.addEventListener('alpine:init', () => {
         saveNote() {
             logEvent('saveNote', { content: this.newNoteContent });
             saveNote(this);
+        },
+        handleSuccessfulSubmit() {
+            logEvent('handleSuccessfulSubmit');
+            handleSuccessfulSubmit(this);
         },
         showSuccessNotification,
         goToNoteDetails,
