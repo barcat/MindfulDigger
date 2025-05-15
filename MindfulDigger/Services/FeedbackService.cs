@@ -14,16 +14,17 @@ public interface IFeedbackService
 }
 
 public class FeedbackService : IFeedbackService
-{    private readonly ISqlClientFactory _supabaseClientFactory;
+{
+    private readonly IFeedbackRepository _feedbackRepository;
     private readonly ISummaryService _summaryService;
     private readonly ILogger<FeedbackService> _logger;
 
     public FeedbackService(
-        ISqlClientFactory supabaseClientFactory,
-        ISummaryService summaryService, 
+        IFeedbackRepository feedbackRepository,
+        ISummaryService summaryService,
         ILogger<FeedbackService> logger)
     {
-        _supabaseClientFactory = supabaseClientFactory ?? throw new ArgumentNullException(nameof(supabaseClientFactory));
+        _feedbackRepository = feedbackRepository ?? throw new ArgumentNullException(nameof(feedbackRepository));
         _summaryService = summaryService ?? throw new ArgumentNullException(nameof(summaryService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -37,29 +38,30 @@ public class FeedbackService : IFeedbackService
         if (summary == null)
         {
             _logger.LogWarning("Summary {SummaryId} not found", command.SummaryId);
-            return (new FeedbackResponseDto 
-            { 
+            return (new FeedbackResponseDto
+            {
                 SummaryId = command.SummaryId,
                 UserId = command.UserId,
                 Rating = command.Rating,
                 CreationDate = DateTime.UtcNow
             }, StatusCodes.Status404NotFound);
         }
-        
+
         if (summary.UserId.ToString() != command.UserId.ToString())
         {
-            _logger.LogWarning("User {UserId} attempted to give feedback on summary {SummaryId} owned by {OwnerUserId}", 
+            _logger.LogWarning("User {UserId} attempted to give feedback on summary {SummaryId} owned by {OwnerUserId}",
                 command.UserId, command.SummaryId, summary.UserId);
-            return (new FeedbackResponseDto 
-            { 
+            return (new FeedbackResponseDto
+            {
                 SummaryId = command.SummaryId,
                 UserId = command.UserId,
                 Rating = command.Rating,
                 CreationDate = DateTime.UtcNow
             }, StatusCodes.Status403Forbidden);
-        }        try
+        }
+
+        try
         {
-            var supabase = await _supabaseClientFactory.CreateClient();
             var feedback = new Feedback
             {
                 SummaryId = command.SummaryId.ToString(),
@@ -68,14 +70,13 @@ public class FeedbackService : IFeedbackService
                 CreationDate = DateTime.UtcNow
             };
 
-            var response = await supabase.From<Feedback>().Upsert(feedback);
-            var updatedFeedback = response.Models.FirstOrDefault();
+            var updatedFeedback = await _feedbackRepository.UpsertFeedbackAsync(feedback);
 
             if (updatedFeedback == null)
             {
                 _logger.LogError("Failed to create/update feedback for summary {SummaryId} by user {UserId}", command.SummaryId, command.UserId);
-                return (new FeedbackResponseDto 
-                { 
+                return (new FeedbackResponseDto
+                {
                     SummaryId = command.SummaryId,
                     UserId = command.UserId,
                     Rating = command.Rating,
@@ -86,10 +87,10 @@ public class FeedbackService : IFeedbackService
             if (string.IsNullOrEmpty(updatedFeedback.SummaryId) || string.IsNullOrEmpty(updatedFeedback.UserId))
             {
                 _logger.LogError("Updated feedback contains null or empty SummaryId or UserId. SummaryId: '{SummaryId}', UserId: '{UserId}'", updatedFeedback.SummaryId, updatedFeedback.UserId);
-                return (new FeedbackResponseDto 
-                { 
-                    SummaryId = command.SummaryId, // Or some other appropriate default/error value
-                    UserId = command.UserId,       // Or some other appropriate default/error value
+                return (new FeedbackResponseDto
+                {
+                    SummaryId = command.SummaryId,
+                    UserId = command.UserId,
                     Rating = command.Rating,
                     CreationDate = DateTime.UtcNow
                 }, StatusCodes.Status500InternalServerError);
@@ -102,10 +103,10 @@ public class FeedbackService : IFeedbackService
             if (!summaryIdParsed || !userIdParsed)
             {
                 _logger.LogError("Failed to parse Guid from updated feedback. SummaryId string: '{SummaryId}', UserId string: '{UserId}'", updatedFeedback.SummaryId, updatedFeedback.UserId);
-                return (new FeedbackResponseDto 
-                { 
-                    SummaryId = command.SummaryId, // Or some other appropriate default/error value
-                    UserId = command.UserId,       // Or some other appropriate default/error value
+                return (new FeedbackResponseDto
+                {
+                    SummaryId = command.SummaryId,
+                    UserId = command.UserId,
                     Rating = command.Rating,
                     CreationDate = DateTime.UtcNow
                 }, StatusCodes.Status500InternalServerError);
@@ -124,8 +125,8 @@ public class FeedbackService : IFeedbackService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating/updating feedback for summary {SummaryId} by user {UserId}", command.SummaryId, command.UserId);
-            return (new FeedbackResponseDto 
-            { 
+            return (new FeedbackResponseDto
+            {
                 SummaryId = command.SummaryId,
                 UserId = command.UserId,
                 Rating = command.Rating,
