@@ -113,32 +113,57 @@ public class NotesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetNoteById(string id)
     {
+        _logger.LogInformation("Attempting to retrieve note {NoteId}", id);
+
         if (!Guid.TryParse(id, out var noteId))
         {
+            _logger.LogWarning("Invalid note ID format received: {InvalidId}", id);
             return BadRequest(new { message = "Invalid note id format." });
         }
 
         var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         if (!Guid.TryParse(userIdStr, out var userId))
         {
+            _logger.LogWarning("Invalid or missing user ID in claims");
             return Unauthorized();
         }
+
         var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
         var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
 
+        if (string.IsNullOrEmpty(jwt) || string.IsNullOrEmpty(refreshToken))
+        {
+            _logger.LogWarning("Missing authentication tokens for user {UserId}", userId);
+            return Unauthorized();
+        }
+
         try
         {
+            _logger.LogDebug("Fetching note {NoteId} for user {UserId}", noteId, userId);
             var note = await _noteService.GetNoteByIdAsync(noteId, userId, jwt, refreshToken);
+            
             if (note == null)
             {
+                _logger.LogInformation("Note {NoteId} not found for user {UserId}", noteId, userId);
                 return NotFound();
             }
-            return Ok(note);
+            
+            // Map to DTO for consistent JSON naming
+            var noteDto = new NoteDetailDto
+            {
+                Id = note.Id!,
+                Content = note.Content,
+                CreationDate = note.CreationDate
+            };
+            
+            return Ok(noteDto);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving note {NoteId} for user {UserId}", noteId, userId);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the note." });
+            _logger.LogError(ex, "Error retrieving note {NoteId} for user {UserId}. Error details: {ErrorMessage}", 
+                noteId, userId, ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { message = "An error occurred while retrieving the note." });
         }
     }
 }
