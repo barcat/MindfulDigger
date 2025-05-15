@@ -131,5 +131,18 @@ namespace MindfulDigger.Services
                 throw new Exception("Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie później.");
             }
         }
+
+        public async Task Logout()
+        {
+            try
+            {
+                await _authRepository.LogoutAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Błąd podczas wylogowywania użytkownika.");
+                throw new Exception("Wystąpił błąd podczas wylogowywania. Spróbuj ponownie później.");
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ public interface IAuthRepository
     Task RegisterUserAsync(RegistrationDto registrationDto);
     Task SendForgotPasswordEmailAsync(ForgotPasswordDto forgotPasswordDto);
     Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto, SupabaseSettings supabaseSettings);
+    Task LogoutAsync();
 }
 
 public class AuthRepository : IAuthRepository
@@ -64,5 +65,11 @@ public class AuthRepository : IAuthRepository
             var error = await response.Content.ReadAsStringAsync();
             throw new Exception($"Nie udało się zresetować hasła: {error}");
         }
+    }
+
+    public async Task LogoutAsync()
+    {
+        var supabase = await _clientFactory.CreateClient();
+        await supabase.Auth.SignOut();
     }
 }
