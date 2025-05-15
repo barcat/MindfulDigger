@@ -3,6 +3,7 @@ using MindfulDigger.DTOs;
 using MindfulDigger.Models;
 using NSubstitute;
 using Microsoft.Extensions.Logging;
+using MindfulDigger.Data.Supabase;
 
 namespace MindfulDigger.Tests
 {
