@@ -53,7 +53,7 @@ namespace MindfulDigger.Controllers
                     new Claim(ClaimTypes.NameIdentifier, userId),
                     new Claim(ClaimTypes.Name, loginRequest.Email),
                     new Claim("AccessToken", token), // Dodajemy token jako claim
-                    new Claim("RefreshToken", refreshToken) // Dodajemy refresh token jako claim
+                    new Claim("RefreshToken", refreshToken ?? string.Empty) // Dodajemy refresh token jako claim
                 };
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -87,6 +87,78 @@ namespace MindfulDigger.Controllers
                 _logger.LogError(ex, "An unexpected error occurred during login for email: {Email}", loginRequest.Email);
                 // It's good practice to not expose raw exception details to the client.
                 return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+            }
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegistrationDto registrationDto)
+        {
+            if (registrationDto == null)
+                return BadRequest(new { message = "Brak danych rejestracyjnych." });
+            try
+            {
+                await _authService.RegisterUser(registrationDto);
+                return Ok(new { message = "Rejestracja zakończona sukcesem. Sprawdź e-mail w celu potwierdzenia." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (GotrueException ex)
+            {
+                return BadRequest(new { message = "Błąd rejestracji: " + ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później." });
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        {
+            if (forgotPasswordDto == null)
+                return BadRequest(new { message = "Brak danych." });
+            try
+            {
+                await _authService.SendForgotPasswordEmail(forgotPasswordDto);
+                return Ok(new { message = "Wysłano e-mail z linkiem do resetowania hasła." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (GotrueException ex)
+            {
+                return BadRequest(new { message = "Błąd wysyłki e-maila: " + ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później." });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            if (resetPasswordDto == null)
+                return BadRequest(new { message = "Brak danych." });
+            try
+            {
+                await _authService.ResetPassword(resetPasswordDto);
+                return Ok(new { message = "Hasło zostało zresetowane." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (GotrueException ex)
+            {
+                return BadRequest(new { message = "Błąd resetowania hasła: " + ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później." });
             }
         }
     }

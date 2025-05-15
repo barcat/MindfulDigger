@@ -1,7 +1,5 @@
-using System;
-using System.Threading.Tasks;
-using MindfulDigger.Models;
 using MindfulDigger.DTOs;
+using MindfulDigger.Models;
 
 namespace MindfulDigger.Services
 {

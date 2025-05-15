@@ -183,7 +183,7 @@ namespace MindfulDigger.Services
                     _logger.LogInformation("Calculating period for 'last_10_notes' for user {UserId}", userId);
                     var notesResponse = await supabase.From<Note>()
                                                       .Where(n => n.UserId == userGuid)
-                                                      .Order("created_at", Supabase.Postgrest.Constants.Ordering.Descending)
+                                                      .Order("created_date", Supabase.Postgrest.Constants.Ordering.Descending)
                                                       .Limit(10)
                                                       .Get();
                     
@@ -255,7 +255,6 @@ namespace MindfulDigger.Services
                     PeriodEnd = periodEnd,
                     IsAutomatic = false, 
                     Status = "Completed", // Synchronous, so completed
-                    CreatedAt = DateTime.UtcNow 
                 };
 
                 var insertResponse = await supabase.From<Summary>().Insert(newSummary);
@@ -279,7 +278,6 @@ namespace MindfulDigger.Services
                     PeriodStart = createdSummary.PeriodStart,
                     PeriodEnd = createdSummary.PeriodEnd,
                     IsAutomatic = createdSummary.IsAutomatic,
-                    CreatedAt = createdSummary.CreatedAt,
                     Status = createdSummary.Status
                 };
                 return (summaryDetailsDto, StatusCodes.Status201Created);
