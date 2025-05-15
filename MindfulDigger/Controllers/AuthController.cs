@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-//using MindfulDigger.DTOs;
 using MindfulDigger.Model;
 using MindfulDigger.Services;
 using Supabase.Gotrue.Exceptions;

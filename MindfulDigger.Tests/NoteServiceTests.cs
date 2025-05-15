@@ -1,9 +1,8 @@
-using MindfulDigger.Services;
-using MindfulDigger.DTOs;
-using MindfulDigger.Model;
-using NSubstitute;
 using Microsoft.Extensions.Logging;
 using MindfulDigger.Data.Supabase;
+using MindfulDigger.Model;
+using MindfulDigger.Services;
+using NSubstitute;
 
 namespace MindfulDigger.Tests
 {

@@ -1,4 +1,3 @@
-using MindfulDigger.DTOs;
 using MindfulDigger.Model;
 
 namespace MindfulDigger.Services

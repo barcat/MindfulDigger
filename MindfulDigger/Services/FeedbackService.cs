@@ -1,5 +1,4 @@
 using MindfulDigger.Data.Supabase;
-using MindfulDigger.DTOs;
 using MindfulDigger.Model;
 
 namespace MindfulDigger.Services;

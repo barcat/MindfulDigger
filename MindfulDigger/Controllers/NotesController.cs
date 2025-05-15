@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindfulDigger.Model;
-using MindfulDigger.DTOs;
 using MindfulDigger.Services;
 using System.Security.Claims;
 using static MindfulDigger.Services.INoteService;

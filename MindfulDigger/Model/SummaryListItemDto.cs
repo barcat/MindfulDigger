@@ -1,4 +1,4 @@
-namespace MindfulDigger.DTOs
+namespace MindfulDigger.Model
 {
     public class SummaryListItemDto
     {

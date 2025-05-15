@@ -1,9 +1,8 @@
+using Microsoft.Extensions.Logging;
 using MindfulDigger.Data.Supabase.Model;
-using MindfulDigger.Data;
-using MindfulDigger.DTOs;
+using MindfulDigger.Model;
 using MindfulDigger.Services;
 using Supabase.Postgrest.Exceptions;
-using MindfulDigger.Model;
 
 namespace MindfulDigger.Data.Supabase;
 
@@ -19,9 +18,9 @@ public interface INoteRepository
 public class NoteRepository : INoteRepository
 {
     private readonly ISqlClientFactory _clientFactory;
-    private readonly ILogger _logger;
+    private readonly ILogger<NoteRepository> _logger;
 
-    public NoteRepository(ISqlClientFactory clientFactory, ILogger logger)
+    public NoteRepository(ISqlClientFactory clientFactory, ILogger<NoteRepository> logger)
     {
         _clientFactory = clientFactory;
         _logger = logger;
