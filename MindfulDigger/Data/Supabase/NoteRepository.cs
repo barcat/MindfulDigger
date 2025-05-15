@@ -88,7 +88,7 @@ public class NoteRepository : INoteRepository
         var client = await GetClientAsync(jwt, refreshToken);
         var response = await client.From<NoteSupabaseDbModel>()
             .Where(n => n.UserId == userId)
-            .Order("created_at", global::Supabase.Postgrest.Constants.Ordering.Descending)
+            .Order("creation_date", global::Supabase.Postgrest.Constants.Ordering.Descending)
             .Range(offset, offset + pageSize - 1)
             .Get();
         return NoteMapper.ToModelList(response.Models);
