@@ -3,6 +3,7 @@ using MindfulDigger.Data.Supabase.Model;
 using MindfulDigger.Model;
 using MindfulDigger.Services;
 using Supabase.Postgrest.Exceptions;
+using Supabase.Postgrest;
 
 namespace MindfulDigger.Data.Supabase;
 
@@ -66,14 +67,16 @@ public class NoteRepository : INoteRepository
         var response = await client.From<NoteSupabaseDbModel>().Insert(dbModel);
         var inserted = response.Models.FirstOrDefault();
         return inserted != null ? NoteMapper.ToModel(inserted) : null!;
-    }
-
-    public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
+    }    public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
-        var response = await client.From<NoteSupabaseDbModel>().Where(n => n.Id == noteId.ToString() && n.UserId == userId).Get();
-        var dbModel = response.Models.FirstOrDefault();
-        return dbModel != null ? NoteMapper.ToModel(dbModel) : null;
+        var response = await client.From<NoteSupabaseDbModel>()
+            .Filter("id", global::Supabase.Postgrest.Constants.Operator.Equals, noteId.ToString())
+            .Filter("user_id", global::Supabase.Postgrest.Constants.Operator.Equals, userId.ToString())
+            .Get();
+            
+        var model = response.Models.FirstOrDefault();
+        return model != null ? NoteMapper.ToModel(model) : null;
     }
 
     public async Task<long> GetTotalUserNotesCountAsync(Guid userId, string jwt, string refreshToken, CancellationToken cancellationToken)
