@@ -8,5 +8,6 @@ namespace MindfulDigger.Services
         Task RegisterUser(RegistrationDto registrationDto);
         Task SendForgotPasswordEmail(ForgotPasswordDto forgotPasswordDto);
         Task ResetPassword(ResetPasswordDto resetPasswordDto);
+        Task Logout();
     }
 }
