@@ -7,16 +7,18 @@
     @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/notes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MindfulDigger.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>        <nav class="bg-white shadow-lg">
-            <div class="max-w-6xl mx-auto px-4">
+<body class="texture-bg">
+    <header>
+        <nav class="bg-white shadow-lg section-spacing">
+            <div class="max-w-6xl mx-auto px-4 section-spacing">
                 <div class="relative flex items-center justify-between h-16">
                     <!-- Logo -->
-                    <div class="absolute left-0">
-                        <a class="text-xl font-bold text-gray-800" asp-area="" asp-page="/Index">MindfulDigger</a>
-                    </div>
+                    @* <div class="absolute left-0">
+                        <a class="text-xl font-bold text-gray-800 accent-terra" asp-area="" asp-page="/Index">MindfulDigger</a>
+                    </div> *@
                     
                     @* <div class="md:hidden">
                         <button 
@@ -37,29 +39,29 @@
                             }
                             @if("/Summaries" == currentPage)
                             {
-                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold">Podsumowania</span>
+                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Podsumowania</span>
                             }
                             else
                             {
-                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium" asp-area="" asp-page="/Summaries">Podsumowania</a>
+                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Summaries">Podsumowania</a>
                             }
 
                             @if("/Notes" == currentPage)
                             {
-                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold">Notatki</span>
+                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Notatki</span>
                             }
                             else
                             {
-                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium" asp-area="" asp-page="/Notes">Notatki</a>
+                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Notes">Notatki</a>
                             }
 
                             @if("/Accounts" == currentPage)
                             {
-                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold">Moje konto</span>
+                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Moje konto</span>
                             }
                             else
                             {
-                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium" asp-area="" asp-page="/Accounts">Moje konto</a>
+                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Accounts">Moje konto</a>
                             }
                         </div>
                     </div>
@@ -68,11 +70,11 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3 section-spacing">
             @RenderBody()
         </main>
     </div>
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted section-spacing">
         <div class="container">
             &copy; 2025 - MindfulDigger - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>

@@ -4,24 +4,20 @@
 	ViewData["Title"] = "Notatki";
 }
 
-<div class="container mx-auto px-4" x-data="notesPage">
-	<div class="flex justify-between items-center mb-6">
-		<h1 class="text-3xl font-bold text-gray-800">Twoje notatki</h1>
-		<div class="flex flex-col items-end">
-			<!-- Liczba pozostałych notatek -->
-			<div x-show="totalCount >= 90 && totalCount < 100" class="text-amber-600 text-sm mb-2">
-				Pozostało <span x-text="100 - totalCount"></span> z 100 dostępnych notatek
-			</div>
-			<button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center"
-					x-bind:disabled="totalCount >= 100"
-					x-bind:class="{ 'opacity-50 cursor-not-allowed': totalCount >= 100 }"
-					@@click="openModal">
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-					<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-				</svg>
-				Dodaj notatkę
-			</button>
-		</div>
+<div class="w-full flex flex-col items-center px-4" x-data="notesPage">
+	<div class="flex flex-col items-center justify-center mb-6 text-center w-full max-w-lg mx-auto">
+		<!-- Liczba pozostałych notatek -->
+		<div x-show="totalCount >= 90 && totalCount < 100" class="text-amber-600 text-sm mb-2">
+			Pozostało <span x-text="100 - totalCount"></span> z 100 dostępnych notatek
+		</div>		<button class="btn-terra text-white py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center mx-auto"
+				x-bind:disabled="totalCount >= 100"
+				x-bind:class="{ 'opacity-50 cursor-not-allowed': totalCount >= 100 }"
+				@@click="openModal">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+				<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+			</svg>
+			Dodaj notatkę
+		</button>
 	</div>
 
 	<!-- Informacja o limicie notatek gdy limit osiągnięty -->

@@ -8,7 +8,6 @@
     <div class="mb-8">
         <!-- Header Summary Component -->
         <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-bold">Podsumowania</h1>
             <div x-show="newSummariesCount > 0" class="bg-blue-500 text-white px-3 py-1 rounded-full">
                 <span x-text="newSummariesCount"></span> nowe
             </div>
@@ -16,11 +15,9 @@
     </div>
 
     <!-- Generate Summary Button -->
-    <div class="mb-6">
-        <button 
+    <div class="mb-6">        <button 
             @@click="openGenerateModal"
-            :disabled="generating"
-            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+            :disabled="generating"            class="btn-terra text-white py-2 px-4 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
             <span x-show="!generating">Generuj podsumowanie</span>
             <span x-show="generating" class="flex items-center">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
