@@ -10,26 +10,59 @@
     <link rel="stylesheet" href="~/MindfulDigger.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">MindfulDigger</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">                   
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Notes">Notatki</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Accounts">Moje konto</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <header>        <nav class="bg-white shadow-lg">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="relative flex items-center justify-between h-16">
+                    <!-- Logo -->
+                    <div class="absolute left-0">
+                        <a class="text-xl font-bold text-gray-800" asp-area="" asp-page="/Index">MindfulDigger</a>
+                    </div>
+                    
+                    @* <div class="md:hidden">
+                        <button 
+                            type="button" 
+                            class="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600" 
+                            aria-label="Menu mobilne">
+                            <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current">
+                                <path fill-rule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"></path>
+                            </svg>
+                        </button>
+                    </div> *@
+
+                    <!-- Desktop menu -->
+                    <div class="hidden md:flex mx-auto">
+                        <div class="flex space-x-8">
+                            @{
+                                var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
+                            }
+                            @if("/Summaries" == currentPage)
+                            {
+                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold">Podsumowania</span>
+                            }
+                            else
+                            {
+                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium" asp-area="" asp-page="/Summaries">Podsumowania</a>
+                            }
+
+                            @if("/Notes" == currentPage)
+                            {
+                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold">Notatki</span>
+                            }
+                            else
+                            {
+                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium" asp-area="" asp-page="/Notes">Notatki</a>
+                            }
+
+                            @if("/Accounts" == currentPage)
+                            {
+                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold">Moje konto</span>
+                            }
+                            else
+                            {
+                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium" asp-area="" asp-page="/Accounts">Moje konto</a>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
