@@ -1,3 +1,5 @@
+using MindfulDigger.Data.Supabase.Model;
+using MindfulDigger.Data;
 using MindfulDigger.DTOs;
 using MindfulDigger.Models;
 using MindfulDigger.Services;
@@ -39,7 +41,7 @@ public class NoteRepository : INoteRepository
         {
             var client = await GetClientAsync(jwt, refreshToken);
             var countResponse = await client
-                .From<Note>()
+                .From<NoteSupabaseDbModel>()
                 .Where(n => n.UserId == userId)
                 .Count(global::Supabase.Postgrest.Constants.CountType.Exact);
             return countResponse;
@@ -54,37 +56,42 @@ public class NoteRepository : INoteRepository
     public async Task<Note> InsertNoteAsync(CreateNoteRequest request, Guid userId, string jwt, string refreshToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
-        var note = new Note
+        var noteModel = new Note
         {
-            // Map fields from request to Note
-            // ...
+            Id = Guid.NewGuid().ToString(),
+            UserId = userId,
+            Content = request.Content,
+            CreationDate = DateTime.UtcNow
         };
-        var response = await client.From<Note>().Insert(note);
-        return response.Models.FirstOrDefault()!;
+        var dbModel = NoteMapper.ToSupabaseDbModel(noteModel);
+        var response = await client.From<NoteSupabaseDbModel>().Insert(dbModel);
+        var inserted = response.Models.FirstOrDefault();
+        return inserted != null ? NoteMapper.ToModel(inserted) : null!;
     }
 
     public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
-        var response = await client.From<Note>().Where(n => n.Id == noteId.ToString() && n.UserId == userId).Get();
-        return response.Models.FirstOrDefault();
+        var response = await client.From<NoteSupabaseDbModel>().Where(n => n.Id == noteId.ToString() && n.UserId == userId).Get();
+        var dbModel = response.Models.FirstOrDefault();
+        return dbModel != null ? NoteMapper.ToModel(dbModel) : null;
     }
 
     public async Task<long> GetTotalUserNotesCountAsync(Guid userId, string jwt, string refreshToken, CancellationToken cancellationToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
-        var countResponse = await client.From<Note>().Where(n => n.UserId == userId).Count(global::Supabase.Postgrest.Constants.CountType.Exact);
+        var countResponse = await client.From<NoteSupabaseDbModel>().Where(n => n.UserId == userId).Count(global::Supabase.Postgrest.Constants.CountType.Exact);
         return countResponse;
     }
 
     public async Task<List<Note>> FetchPaginatedNotesAsync(Guid userId, int offset, int pageSize, CancellationToken cancellationToken, string jwt, string refreshToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
-        var response = await client.From<Note>()
+        var response = await client.From<NoteSupabaseDbModel>()
             .Where(n => n.UserId == userId)
             .Order("created_at", global::Supabase.Postgrest.Constants.Ordering.Descending)
             .Range(offset, offset + pageSize - 1)
             .Get();
-        return response.Models;
+        return NoteMapper.ToModelList(response.Models);
     }
 }

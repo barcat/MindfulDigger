@@ -1,3 +1,5 @@
+using MindfulDigger.Data.Supabase.Model;
+using MindfulDigger.Data;
 using MindfulDigger.Models;
 using MindfulDigger.Services;
 using Supabase;
@@ -21,7 +23,9 @@ public class FeedbackRepository : IFeedbackRepository
     public async Task<Feedback?> UpsertFeedbackAsync(Feedback feedback)
     {
         var supabase = await _supabaseClientFactory.CreateClient();
-        var response = await supabase.From<Feedback>().Upsert(feedback);
-        return response.Models.FirstOrDefault();
+        var dbModel = FeedbackMapper.ToSupabaseDbModel(feedback);
+        var response = await supabase.From<FeedbackSupabaseDbModel>().Upsert(dbModel);
+        var inserted = response.Models.FirstOrDefault();
+        return inserted != null ? FeedbackMapper.ToModel(inserted) : null;
     }
 }

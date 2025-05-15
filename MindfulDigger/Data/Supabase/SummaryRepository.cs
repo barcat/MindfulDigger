@@ -3,7 +3,6 @@ using MindfulDigger.Data;
 using MindfulDigger.Models;
 using Supabase;
 using MindfulDigger.Services;
-using Supabase.Postgrest;
 
 namespace MindfulDigger.Data.Supabase;
 
