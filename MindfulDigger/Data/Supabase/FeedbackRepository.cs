@@ -1,7 +1,8 @@
 using MindfulDigger.Models;
+using MindfulDigger.Services;
 using Supabase;
 
-namespace MindfulDigger.Services;
+namespace MindfulDigger.Data.Supabase;
 
 public interface IFeedbackRepository
 {

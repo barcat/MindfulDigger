@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using MindfulDigger.Data.Supabase;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddSingleton<ISqlClientFactory, SupabaseClientFactory>();
 
 builder.Services.AddScoped<INoteRepository, NoteRepository>(); // Dodaj tę linię
+builder.Services.AddScoped<ISummaryRepository, SummaryRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>(); // Register AuthRepository
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>(); // Register FeedbackRepository
 builder.Services.AddScoped<INoteService, NoteService>(); // Register NoteService
 builder.Services.AddScoped<ISummaryService, SummaryService>(); // Register SummaryService
 builder.Services.AddScoped<ILlmService, MockLlmService>(); // Register MockLlmService

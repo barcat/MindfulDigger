@@ -1,3 +1,4 @@
+using MindfulDigger.Data.Supabase;
 using MindfulDigger.DTOs;
 using Supabase;
 using Supabase.Gotrue.Exceptions; // Corrected namespace

@@ -1,3 +1,4 @@
+using MindfulDigger.Data.Supabase;
 using MindfulDigger.Models;
 using MindfulDigger.DTOs;
 

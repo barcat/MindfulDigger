@@ -3,7 +3,7 @@ using MindfulDigger.Commands;
 using MindfulDigger.DTOs;
 using MindfulDigger.Models;
 using Microsoft.Extensions.Logging;
-using Supabase;
+using MindfulDigger.Data.Supabase;
 using Supabase.Interfaces;
 
 namespace MindfulDigger.Services;

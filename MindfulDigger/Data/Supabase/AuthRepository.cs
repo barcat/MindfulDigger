@@ -1,7 +1,8 @@
 using MindfulDigger.DTOs;
 using Supabase;
+using MindfulDigger.Services;
 
-namespace MindfulDigger.Services;
+namespace MindfulDigger.Data.Supabase;
 
 public interface IAuthRepository
 {

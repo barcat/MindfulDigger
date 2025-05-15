@@ -1,7 +1,9 @@
 using MindfulDigger.Models;
 using Supabase;
+using MindfulDigger.Services;
+using Supabase.Postgrest;
 
-namespace MindfulDigger.Services;
+namespace MindfulDigger.Data.Supabase;
 
 public interface ISummaryRepository
 {
@@ -30,12 +32,12 @@ public class SummaryRepository : ISummaryRepository
     public async Task<(List<Summary> Summaries, long TotalCount)> GetUserSummariesPaginatedAsync(Guid userId, int page, int pageSize)
     {
         var supabase = await _supabaseClientFactory.CreateClient();
-        var countResponse = await supabase.From<Summary>().Where(s => s.UserId == userId).Count(Supabase.Postgrest.Constants.CountType.Exact);
+        var countResponse = await supabase.From<Summary>().Where(s => s.UserId == userId).Count(global::Supabase.Postgrest.Constants.CountType.Exact);
         long totalCount = countResponse;
         int itemsToSkip = (page - 1) * pageSize;
         var summariesResponse = await supabase.From<Summary>()
             .Where(s => s.UserId == userId)
-            .Order("generation_date", Supabase.Postgrest.Constants.Ordering.Descending)
+            .Order("generation_date", global::Supabase.Postgrest.Constants.Ordering.Descending)
             .Range(itemsToSkip, itemsToSkip + pageSize - 1)
             .Get();
         return (summariesResponse.Models, totalCount);
@@ -51,23 +53,12 @@ public class SummaryRepository : ISummaryRepository
     public async Task<List<Note>> GetNotesForSummaryAsync(Guid userId, string period, DateTimeOffset? periodStart = null, DateTimeOffset? periodEnd = null)
     {
         var supabase = await _supabaseClientFactory.CreateClient();
-        if (period == "last_10_notes")
-        {
-            var notesResponse = await supabase.From<Note>()
-                .Where(n => n.UserId == userId)
-                .Order("created_date", Supabase.Postgrest.Constants.Ordering.Descending)
-                .Limit(10)
-                .Get();
-            return notesResponse.Models;
-        }
-        else
-        {
-            var notesInPeriodResponse = await supabase.From<Note>()
-                .Where(n => n.UserId == userId)
-                .Where(n => n.CreationDate >= periodStart)
-                .Where(n => n.CreationDate <= periodEnd)
-                .Get();
-            return notesInPeriodResponse.Models;
-        }
+        var query = supabase.From<Note>().Where(n => n.UserId == userId);
+        if (periodStart.HasValue)
+            query = query.Where(n => n.CreationDate >= periodStart.Value);
+        if (periodEnd.HasValue)
+            query = query.Where(n => n.CreationDate <= periodEnd.Value);
+        var response = await query.Get();
+        return response.Models;
     }
 }
