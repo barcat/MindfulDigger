@@ -1,5 +1,5 @@
 // Filepath: d:\git\MindfulDigger\MindfulDigger\Services\MockLlmService.cs
-using MindfulDigger.Models;
+using MindfulDigger.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

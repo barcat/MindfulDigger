@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MindfulDigger.DTOs;
+using MindfulDigger.Model;
 using MindfulDigger.Services;
 using System.Security.Claims;
 

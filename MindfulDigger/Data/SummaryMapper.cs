@@ -1,6 +1,6 @@
-using MindfulDigger.Models;
 using MindfulDigger.Data.Supabase.Model;
 using System.Collections.Generic;
+using MindfulDigger.Model;
 
 namespace MindfulDigger.Data;
 

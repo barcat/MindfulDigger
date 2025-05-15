@@ -1,4 +1,4 @@
-namespace MindfulDigger.Models;
+namespace MindfulDigger.Model;
 
 using System;
 using Supabase.Postgrest.Attributes;

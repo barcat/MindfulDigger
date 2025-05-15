@@ -1,13 +1,8 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MindfulDigger.DTOs;
 using MindfulDigger.Services;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using MindfulDigger.Models; // Required for Summary model
-using Microsoft.AspNetCore.Http; // Required for StatusCodes
+
 
 namespace MindfulDigger.Controllers
 {

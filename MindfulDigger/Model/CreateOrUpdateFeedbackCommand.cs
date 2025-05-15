@@ -1,6 +1,4 @@
-using MindfulDigger.Models;
-
-namespace MindfulDigger.Commands;
+namespace MindfulDigger.Model;
 
 public record CreateOrUpdateFeedbackCommand(
     Guid SummaryId, 

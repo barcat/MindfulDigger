@@ -1,6 +1,6 @@
 using MindfulDigger.Services;
 using MindfulDigger.DTOs;
-using MindfulDigger.Models;
+using MindfulDigger.Model;
 using NSubstitute;
 using Microsoft.Extensions.Logging;
 using MindfulDigger.Data.Supabase;
@@ -44,7 +44,7 @@ namespace MindfulDigger.Tests
             // Act
             var result = await noteService.CreateNoteAsync(request, userId, jwt, refreshToken);
 
-            // Assert
+            // Asserts
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Id, Is.EqualTo(createdNote.Id));
             Assert.That(result.UserId, Is.EqualTo(userId));

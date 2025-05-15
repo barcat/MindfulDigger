@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Http;
-using MindfulDigger.Commands;
-using MindfulDigger.DTOs;
-using MindfulDigger.Models;
-using Microsoft.Extensions.Logging;
 using MindfulDigger.Data.Supabase;
-using Supabase.Interfaces;
+using MindfulDigger.DTOs;
+using MindfulDigger.Model;
 
 namespace MindfulDigger.Services;
 

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MindfulDigger.DTOs;
+namespace MindfulDigger.Model;
 
 public class CreateNoteRequest
 {

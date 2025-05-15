@@ -1,10 +1,9 @@
-// Filepath: d:\git\MindfulDigger\MindfulDigger\DTOs\GenerateSummaryAcceptedResponseDto.cs
-namespace MindfulDigger.DTOs
+namespace MindfulDigger.Model
 {
     public class GenerateSummaryAcceptedResponseDto
     {
         public string Message { get; set; }
-        public string StatusCheckUrl { get; set; } // e.g., /api/summaries/generation/status/{jobId}
+        public string StatusCheckUrl { get; set; }
 
         public GenerateSummaryAcceptedResponseDto()
         {

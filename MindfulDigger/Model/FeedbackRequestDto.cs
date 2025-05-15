@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using MindfulDigger.Models;
+using MindfulDigger.Model;
 
-namespace MindfulDigger.DTOs;
+namespace MindfulDigger.Model;
 
 public class FeedbackRequestDto
 {

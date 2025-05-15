@@ -1,5 +1,5 @@
 using MindfulDigger.DTOs;
-using MindfulDigger.Models;
+using MindfulDigger.Model;
 
 namespace MindfulDigger.Services;
 

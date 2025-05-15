@@ -1,13 +1,12 @@
-// Filepath: d:\git\MindfulDigger\MindfulDigger\DTOs\GenerateSummaryRequestDto.cs
 using System.ComponentModel.DataAnnotations;
-using MindfulDigger.Attributes; // Add this using directive
+using MindfulDigger.Attributes; 
 
-namespace MindfulDigger.DTOs
+namespace MindfulDigger.Model
 {
     public class GenerateSummaryRequestDto
     {
         [Required(ErrorMessage = "Period is required.")]
-        [ValidSummaryPeriod] // Add this attribute
+        [ValidSummaryPeriod] 
         public string? Period { get; set; }
     }
 }

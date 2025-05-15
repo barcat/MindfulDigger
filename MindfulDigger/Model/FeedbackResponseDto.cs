@@ -1,6 +1,4 @@
-using MindfulDigger.Models;
-
-namespace MindfulDigger.DTOs;
+namespace MindfulDigger.Model;
 
 public class FeedbackResponseDto
 {

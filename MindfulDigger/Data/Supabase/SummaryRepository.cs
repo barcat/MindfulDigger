@@ -1,8 +1,8 @@
 using MindfulDigger.Data.Supabase.Model;
 using MindfulDigger.Data;
-using MindfulDigger.Models;
 using Supabase;
 using MindfulDigger.Services;
+using MindfulDigger.Model;
 
 namespace MindfulDigger.Data.Supabase;
 

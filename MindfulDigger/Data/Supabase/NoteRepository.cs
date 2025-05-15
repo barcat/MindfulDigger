@@ -1,9 +1,9 @@
 using MindfulDigger.Data.Supabase.Model;
 using MindfulDigger.Data;
 using MindfulDigger.DTOs;
-using MindfulDigger.Models;
 using MindfulDigger.Services;
 using Supabase.Postgrest.Exceptions;
+using MindfulDigger.Model;
 
 namespace MindfulDigger.Data.Supabase;
 

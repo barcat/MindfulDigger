@@ -1,5 +1,5 @@
 // Filepath: d:\git\MindfulDigger\MindfulDigger\Services\ILlmService.cs
-using MindfulDigger.Models;
+using MindfulDigger.Model;
 
 namespace MindfulDigger.Services
 {

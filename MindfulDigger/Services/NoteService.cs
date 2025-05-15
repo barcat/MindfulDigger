@@ -1,7 +1,6 @@
 using MindfulDigger.Data.Supabase;
 using MindfulDigger.DTOs;
-using MindfulDigger.Models;
-using Supabase;
+using MindfulDigger.Model;
 using Supabase.Postgrest.Exceptions;
 
 

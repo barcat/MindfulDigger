@@ -1,7 +1,6 @@
 using MindfulDigger.Data.Supabase;
-using MindfulDigger.DTOs;
-using Supabase;
-using Supabase.Gotrue.Exceptions; // Corrected namespace
+using MindfulDigger.Model;
+using Supabase.Gotrue.Exceptions;
 using Microsoft.Extensions.Options;
 
 namespace MindfulDigger.Services
