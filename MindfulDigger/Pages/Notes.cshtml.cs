@@ -23,16 +23,16 @@ namespace MindfulDigger.Pages
 
         public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
         {
+            var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+            if (string.IsNullOrEmpty(jwt))
+            {
+                return RedirectToPage("/Login");
+            }
+
             try
             {
                 var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty);
-                var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
                 var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
-
-                if (string.IsNullOrEmpty(jwt))
-                {
-                    return RedirectToPage("/Login");
-                }
 
                 NotesResponse = await _noteService.GetUserNotesAsync(userId, 1, 15, cancellationToken, jwt, refreshToken);
                 return Page();
