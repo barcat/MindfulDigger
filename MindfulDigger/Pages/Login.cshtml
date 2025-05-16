@@ -4,17 +4,18 @@
     ViewData["Title"] = "Logowanie";
 }
 
-<div class="flex items-center justify-center min-h-screen bg-gray-50">
+<div class="flex items-center justify-center min-h-screen bg-stone-50">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 class="text-2xl font-bold mb-6 text-center">Logowanie</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-stone-900">Logowanie</h2>
         <div x-data="loginForm" class="space-y-4">
-            <input x-model="email" type="email" placeholder="Email" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+            <input x-model="email" type="email" placeholder="Email" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 text-stone-900" />
             <div x-text="emailError" class="text-red-600 text-sm min-h-[1.5em]"></div>
-            <input x-model="password" type="password" placeholder="Hasło" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+            <input x-model="password" type="password" placeholder="Hasło" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300 text-stone-900" />
             <div x-text="passwordError" class="text-red-600 text-sm min-h-[1.5em]"></div>
-            <button @@click="login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">Zaloguj się</button>
+            <button @@click="login" class="w-full btn-terra py-2 px-4 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Zaloguj się</button>
             <div class="flex justify-between items-center mt-2">
                 <a href="/ForgotPassword" class="text-blue-600 hover:underline text-sm">Nie pamiętasz hasła?</a>
+                <a href="/Register" class="text-blue-600 hover:underline text-sm ml-2">Załóż konto</a>
             </div>
             <div x-text="error" class="text-red-600 text-sm min-h-[1.5em]"></div>
         </div>

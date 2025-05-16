@@ -32,36 +32,49 @@
                     </div> *@
 
                     <!-- Desktop menu -->
-                    <div class="hidden md:flex mx-auto">
+                    @{
+                        var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
+                        var isAuthPage = currentPage == "/Login" || currentPage == "/Register";
+                    }
+                    <div class="hidden md:flex mx-auto @(isAuthPage ? "opacity-50 pointer-events-none cursor-not-allowed" : "")">
                         <div class="flex space-x-8">
-                            @{
-                                var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
-                            }
-                            @if("/Summaries" == currentPage)
+                            @if ("/Summaries" == currentPage)
                             {
-                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Podsumowania</span>
+                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Podsumowania</span>
+                            }
+                            else if (isAuthPage)
+                            {
+                                <span class="text-stone-700 px-3 py-2 rounded-md text-base font-medium accent-blue">Podsumowania</span>
                             }
                             else
                             {
-                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Summaries">Podsumowania</a>
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Summaries">Podsumowania</a>
                             }
 
-                            @if("/Notes" == currentPage)
+                            @if ("/Notes" == currentPage)
                             {
-                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Notatki</span>
+                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Notatki</span>
+                            }
+                            else if (isAuthPage)
+                            {
+                                <span class="text-stone-700 px-3 py-2 rounded-md text-base font-medium accent-blue">Notatki</span>
                             }
                             else
                             {
-                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Notes">Notatki</a>
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Notes">Notatki</a>
                             }
 
-                            @if("/Accounts" == currentPage)
+                            @if ("/Accounts" == currentPage)
                             {
-                                <span class="text-gray-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Moje konto</span>
+                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Moje konto</span>
+                            }
+                            else if (isAuthPage)
+                            {
+                                <span class="text-stone-700 px-3 py-2 rounded-md text-base font-medium accent-blue">Moje konto</span>
                             }
                             else
                             {
-                                <a class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Accounts">Moje konto</a>
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Accounts">Moje konto</a>
                             }
                         </div>
                     </div>

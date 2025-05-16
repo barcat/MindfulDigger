@@ -6,12 +6,10 @@
   --color-bg: #F7EAD3;
   --color-accent-terra: #E3B778;
   --color-accent-blue: #A3BFD9;
-  --color-text: #3D3D3D;
 }
 
 body {
   background-color: var(--color-bg);
-  color: var(--color-text);
   font-family: 'Georgia', serif;
   /* Dodano płynne przejście kolorów */
   transition: background-color 0.3s, color 0.3s;
@@ -24,7 +22,6 @@ h1, h2, h3, h4, h5, h6 {
 /* Dodatkowe reguły typografii */
 p, span, div {
   font-family: 'Georgia', serif;
-  color: var(--color-text);
 }
 
 /* Przykład użycia kolorów akcentów */

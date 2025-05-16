@@ -43,7 +43,7 @@
 
         <!-- Empty State -->
         <div x-show="!loading && !error && summaries.length === 0" class="text-center py-8">
-            <p class="text-gray-600">Nie masz jeszcze żadnych podsumowań. Kliknij przycisk "Generuj podsumowanie" aby stworzyć pierwsze.</p>
+            <p class="text-stone-600">Nie masz jeszcze żadnych podsumowań. Kliknij przycisk "Generuj podsumowanie" aby stworzyć pierwsze.</p>
         </div>
 
         <!-- Summary Items -->
@@ -51,13 +51,13 @@
             <template x-for="summary in summaries" :key="summary.id">
                 <div 
                     @@click="showSummaryDetails(summary.id)"
-                    class="bg-white shadow rounded-lg p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow"
+                    class="bg-white shadow rounded-lg p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow border border-stone-200"
                     role="button"
                     tabindex="0"
                     @@keydown.enter="showSummaryDetails(summary.id)">                    <div class="flex flex-col sm:flex-row justify-between items-start space-y-2 sm:space-y-0">
                         <div>
                             <h3 class="text-lg font-semibold" x-text="summary.periodDescription"></h3>
-                            <p class="text-gray-600 mt-1" x-text="formatDate(summary.generationDate)"></p>
+                            <p class="text-stone-600 mt-1" x-text="formatDate(summary.generationDate)"></p>
                         </div>
                         <div x-show="!summary.isAutomatic" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded self-start">
                             Ręczne
@@ -67,20 +67,20 @@
             </template>
 
             <!-- Pagination -->            <div x-show="pagination.totalPages > 1" class="mt-6 flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                <button 
+                <button
                     @@click="changePage(pagination.currentPage - 1)"
                     :disabled="pagination.currentPage === 1"
-                    class="w-full sm:w-auto px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+                    class="w-full sm:w-auto px-4 py-2 border border-stone-300 text-stone-700 bg-white hover:bg-stone-100 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Przejdź do poprzedniej strony">
                     Poprzednia
                 </button>
-                <span class="px-4 py-2 text-sm text-center">
+                <span class="px-4 py-2 text-sm text-center text-stone-700">
                     Strona <span x-text="pagination.currentPage" class="font-semibold"></span> z <span x-text="pagination.totalPages" class="font-semibold"></span>
                 </span>
-                <button 
+                <button
                     @@click="changePage(pagination.currentPage + 1)"
                     :disabled="pagination.currentPage === pagination.totalPages"
-                    class="w-full sm:w-auto px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+                    class="w-full sm:w-auto px-4 py-2 border border-stone-300 text-stone-700 bg-white hover:bg-stone-100 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Przejdź do następnej strony">
                     Następna
                 </button>
@@ -98,11 +98,11 @@
         <div @@click.away="closeGenerateModal" 
              class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
              role="document">
-            <h2 id="modal-title" class="text-xl font-bold mb-4">Generuj podsumowanie</h2>
+            <h2 id="modal-title" class="text-xl font-bold mb-4 text-stone-900">Generuj podsumowanie</h2>
             
             <div class="space-y-4">
                 <div role="radiogroup" aria-labelledby="period-label">
-                    <label id="period-label" class="block text-gray-700 text-sm font-bold mb-2">Wybierz okres</label>
+                    <label id="period-label" class="block text-stone-700 text-sm font-bold mb-2">Wybierz okres</label>
                     <div class="space-y-2">
                         <label class="flex items-center">
                             <input type="radio" x-model="selectedPeriod" value="last_7_days" class="mr-2">
