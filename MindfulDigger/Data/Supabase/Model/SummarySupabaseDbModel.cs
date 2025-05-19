@@ -31,16 +31,15 @@ public class SummarySupabaseDbModel : BaseModel
     [Column("is_automatic")]
     public bool IsAutomatic { get; set; }
 
-    [Column("status")]
-    public string? Status { get; set; }
+    //[Column("status")]
+    //public string? Status { get; set; }
 
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    //[Column("created_at")]
+    //public DateTime CreatedAt { get; set; }
 
     public SummarySupabaseDbModel()
     {
         PeriodDescription = string.Empty;
-        CreatedAt = DateTime.UtcNow;
     }
 
     // Usunięto metody mapujące - przeniesione do SummaryMapper

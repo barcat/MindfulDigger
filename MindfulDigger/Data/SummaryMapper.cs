@@ -18,8 +18,8 @@ public static class SummaryMapper
             PeriodStart = model.PeriodStart,
             PeriodEnd = model.PeriodEnd,
             IsAutomatic = model.IsAutomatic,
-            Status = model.Status,
-            CreatedAt = model.CreatedAt
+            //Status = model.Status,
+            //CreatedAt = model.CreatedAt
         };
     }
 
@@ -35,8 +35,8 @@ public static class SummaryMapper
             PeriodStart = dbModel.PeriodStart,
             PeriodEnd = dbModel.PeriodEnd,
             IsAutomatic = dbModel.IsAutomatic,
-            Status = dbModel.Status,
-            CreatedAt = dbModel.CreatedAt
+            //Status = dbModel.Status,
+            //CreatedAt = dbModel.CreatedAt
         };
     }
 
