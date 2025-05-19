@@ -8,14 +8,12 @@
     <div class="mb-8">
         <!-- Header Summary Component -->
         <div class="flex justify-between items-center">
-            <div x-show="newSummariesCount > 0" class="bg-blue-500 text-white px-3 py-1 rounded-full">
-                <span x-text="newSummariesCount"></span> nowe
-            </div>
         </div>
     </div>
 
     <!-- Generate Summary Button -->
-    <div class="mb-6">        <button 
+    <div class="mb-6 flex items-center space-x-4">
+        <button 
             @@click="openGenerateModal"
             :disabled="generating"            class="btn-terra text-white py-2 px-4 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
             <span x-show="!generating">Generuj podsumowanie</span>
@@ -27,6 +25,9 @@
                 Generowanie...
             </span>
         </button>
+        <div x-show="newSummariesCount > 0" class="bg-blue-500 text-white px-3 py-1 rounded-full">
+            <span x-text="newSummariesCount"></span> nowe
+        </div>
     </div>
 
     <!-- Summary List -->
@@ -58,6 +59,7 @@
                         <div>
                             <h3 class="text-lg font-semibold" x-text="summary.periodDescription"></h3>
                             <p class="text-stone-600 mt-1" x-text="formatDate(summary.generationDate)"></p>
+                            <p class="text-stone-600 mt-1" x-text="summary.content"></p>
                         </div>
                         <div x-show="!summary.isAutomatic" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded self-start">
                             Ręczne
@@ -96,7 +98,7 @@
          @@keydown.escape="closeGenerateModal()"
          x-trap.noscroll="showGenerateModal">
         <div @@click.away="closeGenerateModal" 
-             class="bg-white rounded-lg p-6 sm:w-[400px] md:w-[450px] mx-auto px-4"
+             class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
              role="document">
             <h2 id="modal-title" class="text-xl font-bold mb-4 text-stone-900">Generuj podsumowanie</h2>
             
