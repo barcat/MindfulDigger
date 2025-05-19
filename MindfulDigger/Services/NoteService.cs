@@ -82,6 +82,20 @@ public class NoteService : INoteService
         }
     }
 
+    public async Task<bool> DeleteNoteAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
+    {
+        _logger.LogInformation("Deleting note {NoteId} for user {UserId}", noteId, userId);
+        try
+        {
+            return await _noteRepository.DeleteNoteAsync(noteId, userId, jwt, refreshToken);
+        }
+        catch (PostgrestException ex)
+        {
+            _logger.LogError(ex, "Database error while deleting note {NoteId} for user {UserId}", noteId, userId);
+            throw;
+        }
+    }
+
     private async Task ValidateNoteLimitAsync(Guid userId, string jwt, string refreshToken)
     {
         try

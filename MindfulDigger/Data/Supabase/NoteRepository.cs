@@ -14,6 +14,7 @@ public interface INoteRepository
     Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken);
     Task<long> GetTotalUserNotesCountAsync(Guid userId, string jwt, string refreshToken, CancellationToken cancellationToken);
     Task<List<Note>> FetchPaginatedNotesAsync(Guid userId, int offset, int pageSize, CancellationToken cancellationToken, string jwt, string refreshToken);
+    Task<bool> DeleteNoteAsync(Guid noteId, Guid userId, string jwt, string refreshToken);
 }
 
 public class NoteRepository : INoteRepository
@@ -95,5 +96,23 @@ public class NoteRepository : INoteRepository
             .Range(offset, offset + pageSize - 1)
             .Get();
         return NoteMapper.ToModelList(response.Models);
+    }
+
+    public async Task<bool> DeleteNoteAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
+    {
+        try
+        {
+            var client = await GetClientAsync(jwt, refreshToken);
+            await client.From<NoteSupabaseDbModel>()
+                .Filter("id", global::Supabase.Postgrest.Constants.Operator.Equals, noteId.ToString())
+                .Filter("user_id", global::Supabase.Postgrest.Constants.Operator.Equals, userId.ToString())
+                .Delete();
+            return true;
+        }
+        catch (PostgrestException ex)
+        {
+            _logger.LogError(ex, "Error deleting note {NoteId} for user {UserId}", noteId, userId);
+            throw;
+        }
     }
 }
