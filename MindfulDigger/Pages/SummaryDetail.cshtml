@@ -14,9 +14,8 @@ else if (Model.Summary != null)
 {
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">@Model.Summary.Title</h4>
             <p class="card-text">@Model.Summary.Content</p>
-            <p class="card-subtitle mb-2 text-muted">Data utworzenia: @Model.Summary.CreationDate.ToString("g")</p>
+            <p class="card-subtitle mb-2 text-muted">Data utworzenia: @Model.Summary.GenerationDate.ToString("g")</p>
         </div>
     </div>
 }
