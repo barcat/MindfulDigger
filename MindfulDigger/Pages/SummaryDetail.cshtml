@@ -1,0 +1,26 @@
+@page "/Summaries/Details/{id}"
+@model MindfulDigger.Pages.SummaryDetailModel
+@{
+    ViewData["Title"] = "Szczegóły podsumowania";
+}
+
+<h2>Szczegóły podsumowania</h2>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+else if (Model.Summary != null)
+{
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">@Model.Summary.Title</h4>
+            <p class="card-text">@Model.Summary.Content</p>
+            <p class="card-subtitle mb-2 text-muted">Data utworzenia: @Model.Summary.CreationDate.ToString("g")</p>
+        </div>
+    </div>
+}
+else
+{
+    <p>Ładowanie...</p>
+}
