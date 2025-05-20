@@ -47,7 +47,7 @@
 	</div>
 
 	<!-- Grid z notatkami - Alpine.js rendering (client-side) -->
-	<div x-show="notes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="notes-grid">
+	<div x-show="notes.length > 0" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="notes-grid">
 		<template x-for="note in notes" :key="note.id">
 			<div @@click="goToNoteDetails(note.id)" class="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition duration-300 border border-stone-200">
 				<div class="text-stone-500 text-sm mb-2" x-text="formatDate(note.creationDate)"></div>
