@@ -11,7 +11,7 @@ public static class NoteMapper
         return new NoteSupabaseDbModel
         {
             Id = model.Id,
-            UserId = model.UserId,
+            UserId = model.UserId.Value,
             Content = model.Content,
             CreationDate = model.CreationDate
         };

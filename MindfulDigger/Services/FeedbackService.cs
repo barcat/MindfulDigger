@@ -29,7 +29,9 @@ public class FeedbackService : IFeedbackService
         _logger.LogInformation("Creating/updating feedback for summary {SummaryId} by user {UserId}", command.SummaryId, command.UserId);
 
         // Check if summary exists and belongs to user
-        var summary = await _summaryService.GetSummaryByIdAsync(command.SummaryId);
+        var jwt = command.Jwt;
+        var refreshToken = command.RefreshToken;
+        var summary = await _summaryService.GetSummaryByIdAsync(command.SummaryId, jwt, refreshToken);
         if (summary == null)
         {
             _logger.LogWarning("Summary {SummaryId} not found", command.SummaryId);

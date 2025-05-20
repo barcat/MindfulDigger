@@ -72,6 +72,38 @@ document.addEventListener('alpine:init', () => {
         },
         showSuccessNotification,
         goToNoteDetails,
-        formatDate
+        formatDate,
+        async deleteNote(noteId) {
+            if (!confirm('Czy na pewno chcesz usunąć tę notatkę?')) return;
+            const token = localStorage.getItem('jwt_token');
+            try {
+                const response = await fetch(`/api/notes/${noteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'same-origin'
+                });
+                if (response.status === 401) {
+                    window.location.href = '/Login';
+                    return;
+                }
+                if (response.status === 404) {
+                    this.showSuccessNotification('Notatka już nie istnieje.');
+                }
+                if (!response.ok && response.status !== 404) {
+                    throw new Error('Błąd podczas usuwania notatki');
+                }
+                // Usuń notatkę z listy lokalnie
+                this.notes = this.notes.filter(n => n.id !== noteId);
+                this.totalCount = Math.max(0, this.totalCount - 1);
+                this.showSuccessNotification('Notatka została usunięta!');
+            } catch (error) {
+                alert('Wystąpił błąd podczas usuwania notatki.');
+                console.error('Error deleting note:', error);
+            }
+        }
     }));
 });

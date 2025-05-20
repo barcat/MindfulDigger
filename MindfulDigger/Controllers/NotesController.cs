@@ -166,4 +166,55 @@ public class NotesController : ControllerBase
                 new { message = "An error occurred while retrieving the note." });
         }
     }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> supabemetoda(string id)
+    {
+        _logger.LogInformation("Attempting to delete note {NoteId}", id);
+
+        if (!Guid.TryParse(id, out var noteId))
+        {
+            _logger.LogWarning("Invalid note ID format received: {InvalidId}", id);
+            return BadRequest(new { message = "Invalid note id format." });
+        }
+
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (!Guid.TryParse(userIdStr, out var userId))
+        {
+            _logger.LogWarning("Invalid or missing user ID in claims");
+            return Unauthorized();
+        }
+
+        var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+        var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
+
+        if (string.IsNullOrEmpty(jwt) || string.IsNullOrEmpty(refreshToken))
+        {
+            _logger.LogWarning("Missing authentication tokens for user {UserId}", userId);
+            return Unauthorized();
+        }
+
+        try
+        {
+            var deleted = await _noteService.DeleteNoteAsync(noteId, userId, jwt, refreshToken);
+            if (!deleted)
+            {
+                _logger.LogWarning("Note {NoteId} not found or could not be deleted for user {UserId}", noteId, userId);
+                return NotFound();
+            }
+
+            _logger.LogInformation("Note {NoteId} deleted for user {UserId}", noteId, userId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting note {NoteId} for user {UserId}. Error details: {ErrorMessage}", noteId, userId, ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the note." });
+        }
+    }
 }

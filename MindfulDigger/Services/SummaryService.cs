@@ -16,7 +16,7 @@ namespace MindfulDigger.Services
             _llmService = llmService ?? throw new ArgumentNullException(nameof(llmService));
         }
 
-        public async Task<Summary?> GetSummaryByIdAsync(Guid summaryId)
+        public async Task<Summary?> GetSummaryByIdAsync(Guid summaryId, string jwt, string refreshToken)
         {
             if (summaryId == Guid.Empty)
             {
@@ -25,7 +25,8 @@ namespace MindfulDigger.Services
             }
             try
             {
-                var summary = await _summaryRepository.GetSummaryByIdAsync(summaryId);
+                var summary = await _summaryRepository.GetSummaryByIdAsync(summaryId, jwt, refreshToken);
+
                 if (summary == null)
                 {
                     _logger.LogInformation("Summary with ID {SummaryId} not found.", summaryId);
@@ -43,7 +44,7 @@ namespace MindfulDigger.Services
             }
         }
 
-        public async Task<PaginatedResponse<SummaryListItemDto>> GetSummariesAsync(string userId, int page, int pageSize)
+        public async Task<PaginatedResponse<SummaryListItemDto>> GetSummariesAsync(string userId, int page, int pageSize, string jwt, string refreshToken)
         {
             _logger.LogInformation("Attempting to retrieve summaries for User {UserId}, Page {Page}, PageSize {PageSize}", userId, page, pageSize);
             if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid userGuid) || userGuid == Guid.Empty)
@@ -63,7 +64,7 @@ namespace MindfulDigger.Services
             }
             try
             {
-                var (summaries, totalCount) = await _summaryRepository.GetUserSummariesPaginatedAsync(userGuid, page, pageSize);
+                var (summaries, totalCount) = await _summaryRepository.GetUserSummariesPaginatedAsync(userGuid, page, pageSize, jwt, refreshToken);
                 int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
                 var summaryListItems = summaries.Select(s => new SummaryListItemDto
                 {
@@ -72,7 +73,9 @@ namespace MindfulDigger.Services
                     PeriodDescription = s.PeriodDescription,
                     IsAutomatic = s.IsAutomatic
                 }).ToList();
+
                 _logger.LogInformation("Successfully retrieved {Count} summaries for User {UserId}", summaryListItems.Count, userId);
+                
                 return new PaginatedResponse<SummaryListItemDto>
                 {
                     Items = summaryListItems,
@@ -92,7 +95,7 @@ namespace MindfulDigger.Services
             }
         }
 
-        public async Task<(SummaryDetailsDto Dto, int StatusCode)> GenerateSummaryAsync(string userId, GenerateSummaryRequestDto requestDto)
+        public async Task<(SummaryDetailsDto Dto, int StatusCode)> GenerateSummaryAsync(string userId, GenerateSummaryRequestDto requestDto, string jwt, string refreshToken)
         {
             _logger.LogInformation("Summary generation requested for user {UserId} with period {Period}", userId, requestDto.Period);
             if (!Guid.TryParse(userId, out Guid userGuid) || userGuid == Guid.Empty)
@@ -121,7 +124,7 @@ namespace MindfulDigger.Services
                 if (requestedPeriod == "last_10_notes")
                 {
                     _logger.LogInformation("Calculating period for 'last_10_notes' for user {UserId}", userId);
-                    notesForSummary = await _summaryRepository.GetNotesForSummaryAsync(userGuid, requestedPeriod);
+                    notesForSummary = await _summaryRepository.GetNotesForSummaryAsync(userGuid, requestedPeriod, null, null, jwt, refreshToken);
                     if (notesForSummary != null && notesForSummary.Any())
                     {
                         periodStart = notesForSummary.Last()!.CreationDate;
@@ -154,8 +157,11 @@ namespace MindfulDigger.Services
                             periodDescription = "Last 30 days";
                             break;
                     }
+
                     _logger.LogInformation("Calculated period for {RequestedPeriod}: {PeriodStart} to {PeriodEnd}", requestedPeriod, periodStart, periodEnd);
-                    notesForSummary = await _summaryRepository.GetNotesForSummaryAsync(userGuid, requestedPeriod, periodStart, periodEnd);
+
+                    notesForSummary = await _summaryRepository.GetNotesForSummaryAsync(userGuid, requestedPeriod, periodStart, periodEnd, jwt, refreshToken);
+
                     if (notesForSummary != null && notesForSummary.Any())
                     {
                         _logger.LogInformation("Found {NoteCount} notes in the period '{PeriodDescription}'", notesForSummary.Count, periodDescription);
@@ -179,7 +185,7 @@ namespace MindfulDigger.Services
                     IsAutomatic = false,
                     Status = "Completed",
                 };
-                var createdSummary = await _summaryRepository.InsertSummaryAsync(newSummary);
+                var createdSummary = await _summaryRepository.InsertSummaryAsync(newSummary, jwt, refreshToken);
                 if (createdSummary == null)
                 {
                     _logger.LogError("Failed to save the new summary for user {UserId}, period {PeriodDescription}", userId, periodDescription);

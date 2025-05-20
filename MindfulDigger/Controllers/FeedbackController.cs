@@ -39,10 +39,15 @@ public class FeedbackController : ControllerBase
             return Unauthorized(new { message = "User ID not found in token." });
         }
 
+        var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+        var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
+
         var command = new CreateOrUpdateFeedbackCommand(
             request.SummaryId,
             Guid.Parse(userId),
-            request.Rating
+            request.Rating,
+            jwt,
+            refreshToken
         );
 
         var (response, statusCode) = await _feedbackService.CreateOrUpdateFeedbackAsync(command);

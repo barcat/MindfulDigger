@@ -10,10 +10,10 @@ public class NoteSupabaseDbModel : BaseModel
     public NoteSupabaseDbModel() { }
 
     [PrimaryKey("id")]
-    public string? Id { get; set; }
+    public string Id { get; set; }
 
     [Column("user_id")]
-    public Guid? UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     [Column("content")]
     public string Content { get; set; } = null!;

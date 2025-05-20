@@ -1,9 +1,12 @@
 // Alpine.js component for note detail page
+import { showSuccessNotification } from './notes.utils.js';
+
 document.addEventListener('alpine:init', () => {
     Alpine.data('noteDetailPage', () => ({
         note: null,
         isLoading: true,
         error: '',
+        isDeleting: false,
 
         async init() {
             const noteId = this.getNoteIdFromUrl();
@@ -21,9 +24,9 @@ document.addEventListener('alpine:init', () => {
             return id;
         },
 
-        getRequestOptions() {
+        getRequestOptions(method = 'GET') {
             return {
-                method: 'GET',
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -111,9 +114,7 @@ document.addEventListener('alpine:init', () => {
 
         goBack() {
             window.history.back();
-        },
-
-        formatDate(dateString) {
+        },        formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -122,6 +123,64 @@ document.addEventListener('alpine:init', () => {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        },        
+        
+        async deleteNote() {
+            const noteId = this.getNoteIdFromUrl();
+            if (!noteId) {
+                this.error = 'Nieprawidłowy identyfikator notatki';
+                return;
+            }
+            
+            if (!confirm('Czy na pewno chcesz usunąć tę notatkę?')) return;
+
+            this.isDeleting = true;
+            this.error = '';
+
+            try {                const response = await fetch(`/api/notes/${noteId}`, this.getRequestOptions('DELETE'));
+
+                // Status 400 - Nieprawidłowy format ID
+                if (response.status === 400) {
+                    const data = await response.json();
+                    this.error = data.message || 'Nieprawidłowy format identyfikatora notatki';
+                    return;
+                }
+
+                // Status 401 - Nieautoryzowany dostęp
+                if (response.status === 401) {
+                    window.location.href = '/Login';
+                    return;
+                }
+
+                // Status 404 - Notatka nie istnieje
+                if (response.status === 404) {
+                    this.error = 'Notatka nie istnieje lub została już usunięta';
+                    setTimeout(() => {
+                        window.location.href = '/notes';
+                    }, 2000); // Daj użytkownikowi czas na przeczytanie komunikatu
+                    return;
+                }
+
+                // Status 204 - Pomyślnie usunięto
+                if (response.status === 204) {
+                    showSuccessNotification('Notatka została pomyślnie usunięta');
+                    setTimeout(() => {
+                        window.location.href = '/notes';
+                    }, 2000);
+                    return;
+                }
+
+                // Inne błędy
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Wystąpił błąd podczas usuwania notatki');
+                }
+            } catch (error) {
+                console.error('Error deleting note:', error);
+                this.error = error.message || 'Wystąpił nieoczekiwany błąd podczas usuwania notatki';
+            } finally {
+                this.isDeleting = false;
+            }
         }
     }));
 });

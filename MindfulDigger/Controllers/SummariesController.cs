@@ -25,19 +25,22 @@ namespace MindfulDigger.Controllers
             if (summaryId == Guid.Empty)
             {
                 _logger.LogWarning("GetSummaryById called with empty summaryId.");
-                return BadRequest("Summary ID cannot be empty."); // Or NotFound as per preference
+                return BadRequest("Summary ID cannot be empty.");
             }
 
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
             {
                 _logger.LogWarning("User ID not found in token or is invalid.");
-                return Unauthorized(); // Or Forbid() if user is authenticated but claim is missing
+                return Unauthorized();
             }
+
+            var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+            var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
 
             try
             {
-                var summary = await _summaryService.GetSummaryByIdAsync(summaryId);
+                var summary = await _summaryService.GetSummaryByIdAsync(summaryId, jwt, refreshToken);
 
                 if (summary == null)
                 {
@@ -48,7 +51,7 @@ namespace MindfulDigger.Controllers
                 if (summary.UserId != userId)
                 {
                     _logger.LogWarning("User {UserId} attempted to access summary {SummaryId} owned by {OwnerUserId}. Access denied.", userId, summaryId, summary.UserId);
-                    return Forbid(); // User is authenticated but not authorized for this resource
+                    return Forbid();
                 }
 
                 var summaryDto = new SummaryDetailsDto
@@ -83,7 +86,6 @@ namespace MindfulDigger.Controllers
                 return BadRequest(new { error = "Page number must be 1 or greater." });
             }
             
-            // Define a max page size, e.g., 100, as per implementation plan
             const int maxPageSize = 100;
             if (pageSize < 1 || pageSize > maxPageSize)
             {
@@ -94,31 +96,27 @@ namespace MindfulDigger.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                // This case should ideally be handled by the [Authorize] attribute,
-                // but as a safeguard:
                 _logger.LogWarning("User ID not found in token for GetSummaries.");
                 return Unauthorized(new { error = "User ID not found in token." });
             }
 
+            var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+            var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
+
             try
             {
-                var paginatedResult = await _summaryService.GetSummariesAsync(userId, page, pageSize);
-                
-                // The plan's response structure is slightly different from PaginatedResponse<T>
-                // It expects "summaries" and "pagination" top-level keys.
+                var paginatedResult = await _summaryService.GetSummariesAsync(userId, page, pageSize, jwt, refreshToken);
                 var response = new
                 {
                     summaries = paginatedResult.Items,
                     pagination = paginatedResult.Pagination
                 };
-                
                 _logger.LogInformation("Successfully retrieved summaries for user {UserId}. Page: {Page}, PageSize: {PageSize}, TotalCount: {TotalCount}", userId, page, pageSize, paginatedResult.Pagination.TotalCount);
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving summaries for user {UserId}. Page: {Page}, PageSize: {PageSize}", userId, page, pageSize);
-                // As per plan, return a generic 500 error message
                 return StatusCode(500, new { error = "An unexpected error occurred. Please try again later." });
             }
         }
@@ -130,17 +128,20 @@ namespace MindfulDigger.Controllers
             if (string.IsNullOrEmpty(userId))
             {
                 _logger.LogWarning("User ID not found in token for GenerateSummary.");
-                return Unauthorized(new { message = "User ID not found in token." }); // Return a ProblemDetails-like object or simple message
+                return Unauthorized(new { message = "User ID not found in token." });
             }
 
             _logger.LogInformation("GenerateSummary called by user {UserId} with period {Period}", userId, requestDto.Period);
 
-            var (summaryDto, statusCode) = await _summaryService.GenerateSummaryAsync(userId, requestDto);
+            var jwt = User.FindFirstValue("AccessToken") ?? string.Empty;
+            var refreshToken = User.FindFirstValue("RefreshToken") ?? string.Empty;
+
+            var (summaryDto, statusCode) = await _summaryService.GenerateSummaryAsync(userId, requestDto, jwt, refreshToken);
 
             return statusCode switch
             {
                 StatusCodes.Status201Created => CreatedAtAction(nameof(GetSummaryById), new { summaryId = summaryDto.Id }, summaryDto),
-                StatusCodes.Status400BadRequest => BadRequest(new { title = "Validation Error", status = StatusCodes.Status400BadRequest, detail = summaryDto.Content }), // Assuming content holds error message
+                StatusCodes.Status400BadRequest => BadRequest(new { title = "Validation Error", status = StatusCodes.Status400BadRequest, detail = summaryDto.Content }),
                 StatusCodes.Status500InternalServerError => StatusCode(StatusCodes.Status500InternalServerError, new { title = "Internal Server Error", status = StatusCodes.Status500InternalServerError, detail = summaryDto.Content }),
                 _ => StatusCode(statusCode, summaryDto) 
             };

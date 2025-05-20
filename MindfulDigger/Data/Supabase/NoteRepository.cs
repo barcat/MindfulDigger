@@ -1,9 +1,7 @@
-using Microsoft.Extensions.Logging;
 using MindfulDigger.Data.Supabase.Model;
 using MindfulDigger.Model;
 using MindfulDigger.Services;
 using Supabase.Postgrest.Exceptions;
-using Supabase.Postgrest;
 
 namespace MindfulDigger.Data.Supabase;
 
@@ -68,7 +66,9 @@ public class NoteRepository : INoteRepository
         var response = await client.From<NoteSupabaseDbModel>().Insert(dbModel);
         var inserted = response.Models.FirstOrDefault();
         return inserted != null ? NoteMapper.ToModel(inserted) : null!;
-    }    public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
+    }    
+    
+    public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
         var response = await client.From<NoteSupabaseDbModel>()
@@ -95,18 +95,22 @@ public class NoteRepository : INoteRepository
             .Order("creation_date", global::Supabase.Postgrest.Constants.Ordering.Descending)
             .Range(offset, offset + pageSize - 1)
             .Get();
+
         return NoteMapper.ToModelList(response.Models);
     }
 
     public async Task<bool> DeleteNoteAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
     {
+        var noteIdStr = noteId.ToString();
+
         try
         {
             var client = await GetClientAsync(jwt, refreshToken);
+            
             await client.From<NoteSupabaseDbModel>()
-                .Filter("id", global::Supabase.Postgrest.Constants.Operator.Equals, noteId.ToString())
-                .Filter("user_id", global::Supabase.Postgrest.Constants.Operator.Equals, userId.ToString())
+                .Where(n => n.Id == noteIdStr)
                 .Delete();
+
             return true;
         }
         catch (PostgrestException ex)
