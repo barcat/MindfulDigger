@@ -40,7 +40,10 @@
                         <div class="flex space-x-8">
                             @if ("/Summaries" == currentPage)
                             {
-                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Podsumowania</span>
+                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra relative">
+                                    Podsumowania
+                                    <span id="newSummariesCountBadge" style="display:none" class="absolute -top-2 -right-4 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full"></span>
+                                </span>
                             }
                             else if (isAuthPage)
                             {
@@ -48,7 +51,10 @@
                             }
                             else
                             {
-                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Summaries">Podsumowania</a>
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue relative" asp-area="" asp-page="/Summaries">
+                                    Podsumowania
+                                    <span id="newSummariesCountBadge" style="display:none" class="absolute -top-2 -right-4 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full"></span>
+                                </a>
                             }
 
                             @if ("/Notes" == currentPage)
@@ -102,6 +108,25 @@
     <script src="~/lib/alpinejs-focus/dist/cdn.min.js" defer></script>
     <script src="~/lib/alpinejs/cdn.min.js" defer></script>
     <link rel="stylesheet" href="~/css/tailwind.generated.css" asp-append-version="true" />
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var badge = document.getElementById('newSummariesCountBadge');
+            
+            if (!badge) return;
+            
+            fetch('/api/Summaries?page=1&pageSize=100', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (!data || !data.summaries) return;
+                    var count = data.summaries.filter(s => s.isRead === false).length;
+                    if (count > 0) {
+                        badge.textContent = count + ' nowe';
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+        });
+    </script>
 </body>
 </html>

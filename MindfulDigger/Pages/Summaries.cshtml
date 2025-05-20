@@ -15,7 +15,7 @@
     <div class="mb-6 flex items-center space-x-4">
         <button 
             @@click="openGenerateModal"
-            :disabled="generating"            class="btn-terra text-white py-2 px-4 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            :disabled="generating"            class="btn-terra py-2 px-4 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
             <span x-show="!generating">Generuj podsumowanie</span>
             <span x-show="generating" class="flex items-center">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -25,9 +25,6 @@
                 Generowanie...
             </span>
         </button>
-        <div x-show="newSummariesCount > 0" class="bg-blue-500 text-white px-3 py-1 rounded-full">
-            <span x-text="newSummariesCount"></span> nowe
-        </div>
     </div>
 
     <!-- Summary List -->
@@ -153,7 +150,6 @@
                 loading: true,
                 error: null,
                 generating: false,
-                newSummariesCount: 0,
                 showGenerateModal: false,
                 selectedPeriod: null,
                 pagination: {
@@ -192,7 +188,6 @@
 
                         this.summaries = data.summaries;
                         this.pagination = data.pagination;
-                        this.newSummariesCount = this.summaries.filter(s => !s.isRead).length;
                     } catch (err) {
                         this.error = err.message;
                     } finally {
