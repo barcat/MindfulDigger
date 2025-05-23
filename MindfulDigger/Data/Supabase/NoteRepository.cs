@@ -28,9 +28,12 @@ public class NoteRepository : INoteRepository
 
     private async Task<global::Supabase.Client> GetClientAsync(string jwt, string refreshToken)
     {
+
         var client = await _clientFactory.CreateClient();
-        if (!string.IsNullOrEmpty(jwt))
-            await client.Auth.SetSession(jwt, refreshToken);
+
+        //if (!string.IsNullOrEmpty(jwt))
+        //    await client.Auth.SetSession(jwt, refreshToken);
+
         return client;
     }
 
