@@ -1,3 +1,4 @@
+using MindfulDigger.Attributes;
 using MindfulDigger.Data.Supabase.Model;
 using MindfulDigger.Model;
 using MindfulDigger.Services;
@@ -28,11 +29,10 @@ public class NoteRepository : INoteRepository
 
     private async Task<global::Supabase.Client> GetClientAsync(string jwt, string refreshToken)
     {
-
         var client = await _clientFactory.CreateClient();
+        if (!string.IsNullOrEmpty(jwt))
 
-        //if (!string.IsNullOrEmpty(jwt))
-        //    await client.Auth.SetSession(jwt, refreshToken);
+            await client.Auth.SetSession(jwt, refreshToken);
 
         return client;
     }
@@ -69,8 +69,8 @@ public class NoteRepository : INoteRepository
         var response = await client.From<NoteSupabaseDbModel>().Insert(dbModel);
         var inserted = response.Models.FirstOrDefault();
         return inserted != null ? NoteMapper.ToModel(inserted) : null!;
-    }    
-    
+    }
+
     public async Task<Note?> GetNoteByIdAsync(Guid noteId, Guid userId, string jwt, string refreshToken)
     {
         var client = await GetClientAsync(jwt, refreshToken);
@@ -78,7 +78,7 @@ public class NoteRepository : INoteRepository
             .Filter("id", global::Supabase.Postgrest.Constants.Operator.Equals, noteId.ToString())
             .Filter("user_id", global::Supabase.Postgrest.Constants.Operator.Equals, userId.ToString())
             .Get();
-            
+
         var model = response.Models.FirstOrDefault();
         return model != null ? NoteMapper.ToModel(model) : null;
     }
@@ -98,7 +98,6 @@ public class NoteRepository : INoteRepository
             .Order("creation_date", global::Supabase.Postgrest.Constants.Ordering.Descending)
             .Range(offset, offset + pageSize - 1)
             .Get();
-
         return NoteMapper.ToModelList(response.Models);
     }
 

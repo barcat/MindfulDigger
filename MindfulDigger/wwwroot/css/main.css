@@ -24,6 +24,10 @@ p, span, div {
   font-family: 'Georgia', serif;
 }
 
+.font-raleway {
+  font-family: 'Raleway', sans-serif;
+}
+
 /* Przykład użycia kolorów akcentów */
 .accent-terra {
   color: var(--color-accent-terra);

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MindfulDigger.styles.css" asp-append-version="true" />
 </head>
-<body class="texture-bg">
+<body style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><filter id=%22noise%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.5%22 numOctaves=%225%22 seed=%221%22/></filter><rect width=%22100%22 height=%22100%22 filter=%22url(%23noise)%22 opacity=%220.25%22/></svg>'); background-size: 100px 100px; background-repeat: repeat;">
     <header>
         <nav class="bg-white shadow-lg section-spacing">
             <div class="max-w-6xl mx-auto px-4 section-spacing">
@@ -40,18 +40,18 @@
                         <div class="flex space-x-8">
                             @if ("/Summaries" == currentPage)
                             {
-                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra relative">
+                                <h3 class="text-stone-900 px-3 py-2 rounded-md text-xl font-bold accent-terra relative">
                                     Podsumowania
                                     <span id="newSummariesCountBadge" style="display:none" class="absolute -top-2 -right-4 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full"></span>
-                                </span>
+                                </h3>
                             }
                             else if (isAuthPage)
                             {
-                                <span class="text-stone-700 px-3 py-2 rounded-md text-base font-medium accent-blue">Podsumowania</span>
+                                <h3 class="text-stone-700 px-3 py-2 rounded-md text-xl font-bold accent-blue">Podsumowania</h3>
                             }
                             else
                             {
-                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue relative" asp-area="" asp-page="/Summaries">
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-xl font-bold accent-blue relative font-raleway" asp-area="" asp-page="/Summaries">
                                     Podsumowania
                                     <span id="newSummariesCountBadge" style="display:none" class="absolute -top-2 -right-4 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full"></span>
                                 </a>
@@ -59,28 +59,28 @@
 
                             @if ("/Notes" == currentPage)
                             {
-                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Notatki</span>
+                                <h3 class="text-stone-900 px-3 py-2 rounded-md text-xl font-bold accent-terra">Notatki</h3>
                             }
                             else if (isAuthPage)
                             {
-                                <span class="text-stone-700 px-3 py-2 rounded-md text-base font-medium accent-blue">Notatki</span>
+                                <h3 class="text-stone-700 px-3 py-2 rounded-md text-xl font-bold accent-blue">Notatki</h3>
                             }
                             else
                             {
-                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Notes">Notatki</a>
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-xl font-bold accent-blue font-raleway" asp-area="" asp-page="/Notes">Notatki</a>
                             }
 
                             @if ("/Accounts" == currentPage)
                             {
-                                <span class="text-stone-900 px-3 py-2 rounded-md text-base font-bold accent-terra">Moje konto</span>
+                                <h3 class="text-stone-900 px-3 py-2 rounded-md text-xl font-bold accent-terra">Moje konto</h3>
                             }
                             else if (isAuthPage)
                             {
-                                <span class="text-stone-700 px-3 py-2 rounded-md text-base font-medium accent-blue">Moje konto</span>
+                                <h3 class="text-stone-700 px-3 py-2 rounded-md text-xl font-bold accent-blue">Moje konto</h3>
                             }
                             else
                             {
-                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-base font-medium accent-blue" asp-area="" asp-page="/Accounts">Moje konto</a>
+                                <a class="text-stone-700 hover:text-stone-900 px-3 py-2 rounded-md text-xl font-bold accent-blue font-raleway" asp-area="" asp-page="/Accounts">Moje konto</a>
                             }
                         </div>
                     </div>

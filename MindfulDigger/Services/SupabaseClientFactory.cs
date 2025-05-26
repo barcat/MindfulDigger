@@ -23,6 +23,7 @@ namespace MindfulDigger.Services
             var options = new SupabaseOptions
             {
                 AutoRefreshToken = true,
+                AutoConnectRealtime = true
             };
 
             var client = new Client(_settings.Url, _settings.Key, options);
