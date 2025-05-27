@@ -1,0 +1,6 @@
+@model MindfulDigger.Model.NoteListItemDto
+
+<div onclick="location.href='/notes/@Model.Id'" class="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition duration-300 border border-gray-200">
+    <div class="text-gray-500 text-sm mb-2">@Model.CreationDate.ToString("dd MMM yyyy, HH:mm", new System.Globalization.CultureInfo("pl-PL"))</div>
+    <div class="text-gray-800">@Model.ContentSnippet</div>
+</div>

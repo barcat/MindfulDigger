@@ -1,0 +1,26 @@
+# IDE / Editor specific files
+# Ignore Visual Studio specific files and folders
+.vs/
+
+# Dependencies
+# Ignore library folders managed by package managers (e.g., LibMan)
+wwwroot/lib/
+
+# Build Artifacts
+# Ignore common build output directories for the MindfulDigger project
+MindfulDigger/[Bb]in/
+MindfulDigger/[Oo]bj/
+
+# Specific build configurations and intermediate output for the MindfulDigger project
+# These might be covered by the general rules above (e.g., obj/Debug, bin/Release),
+# but are kept for explicitness if direct top-level folders with these names are created.
+MindfulDigger/[Dd]ebug/
+MindfulDigger/[Rr]elease/
+MindfulDigger/x64/
+MindfulDigger/[Bb]uild/
+MindfulDigger.Tests/bin/
+MindfulDigger.Tests/obj/
+MindfulDigger/.env
+node_modules/
+obj/
+MindfulDigger/wwwroot/lib/

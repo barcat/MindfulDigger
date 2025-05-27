@@ -1,0 +1,274 @@
+@page
+@model MindfulDigger.Pages.SummariesModel
+@{
+    ViewData["Title"] = "Podsumowania";
+}
+
+<div x-data="summaryPage()" class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <!-- Header Summary Component -->
+        <div class="flex justify-between items-center">
+        </div>
+    </div>
+
+    <!-- Generate Summary Button -->
+    <div class="mb-6 flex items-center space-x-4">
+        <button 
+            @@click="openGenerateModal"
+            :disabled="generating"            class="btn-terra py-2 px-4 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span x-show="!generating">Generuj podsumowanie</span>
+            <span x-show="generating" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generowanie...
+            </span>
+        </button>
+    </div>
+
+    <!-- Summary List -->
+    <div>
+        <!-- Loading State -->
+        <div x-show="loading" class="flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+            <span x-text="error"></span>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="!loading && !error && summaries.length === 0" class="text-center py-8">
+            <p class="text-stone-600">Nie masz jeszcze żadnych podsumowań. Kliknij przycisk "Generuj podsumowanie" aby stworzyć pierwsze.</p>
+        </div>
+
+        <!-- Summary Items -->
+        <div x-show="!loading && !error && summaries.length > 0">
+            <template x-for="summary in summaries" :key="summary.id">
+                <div 
+                    @@click="showSummaryDetails(summary.id)"
+                    class="bg-white shadow rounded-lg p-6 mb-4 cursor-pointer hover:shadow-lg transition-shadow border border-stone-200"
+                    role="button"
+                    tabindex="0"
+                    @@keydown.enter="showSummaryDetails(summary.id)">
+                    <div class="flex flex-col sm:flex-row justify-between items-start space-y-2 sm:space-y-0">
+                        <div>
+                            <h3 class="text-lg font-semibold" x-text="summary.periodDescription"></h3>
+                            <p class="text-stone-600 mt-1" x-text="formatDate(summary.generationDate)"></p>
+                        </div>
+                        <div x-show="!summary.isAutomatic" class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded self-start">
+                            Ręczne
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Pagination -->            <div x-show="pagination.totalPages > 1" class="mt-6 flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                <button
+                    @@click="changePage(pagination.currentPage - 1)"
+                    :disabled="pagination.currentPage === 1"
+                    class="w-full sm:w-auto px-4 py-2 border border-stone-300 text-stone-700 bg-white hover:bg-stone-100 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Przejdź do poprzedniej strony">
+                    Poprzednia
+                </button>
+                <span class="px-4 py-2 text-sm text-center text-stone-700">
+                    Strona <span x-text="pagination.currentPage" class="font-semibold"></span> z <span x-text="pagination.totalPages" class="font-semibold"></span>
+                </span>
+                <button
+                    @@click="changePage(pagination.currentPage + 1)"
+                    :disabled="pagination.currentPage === pagination.totalPages"
+                    class="w-full sm:w-auto px-4 py-2 border border-stone-300 text-stone-700 bg-white hover:bg-stone-100 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Przejdź do następnej strony">
+                    Następna
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Summary Modal -->
+    <div x-show="showGenerateModal" 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         role="dialog"
+         aria-labelledby="modal-title"
+         @@keydown.escape="closeGenerateModal()"
+         x-trap.noscroll="showGenerateModal">
+        <div @@click.away="closeGenerateModal" 
+             class="bg-white rounded-lg p-6 max-w-md mx-4"
+             role="document">
+            <h2 id="modal-title" class="text-xl font-bold mb-4 text-stone-900">Generuj podsumowanie</h2>
+            
+            <div class="space-y-4">
+                <div role="radiogroup" aria-labelledby="period-label">
+                    <label id="period-label" class="block text-stone-700 text-sm font-bold mb-2">Wybierz okres</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="last_7_days" class="mr-2">
+                            <span>Ostatnie 7 dni</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="last_14_days" class="mr-2">
+                            <span>Ostatnie 14 dni</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="last_30_days" class="mr-2">
+                            <span>Ostatnie 30 dni</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" x-model="selectedPeriod" value="last_10_notes" class="mr-2">
+                            <span>Ostatnie 10 notatek</span>
+                        </label>
+                    </div>
+                </div>                <div class="flex flex-col-reverse sm:flex-row justify-end space-y-reverse space-y-2 sm:space-y-0 sm:space-x-3">
+                    <button 
+                        @@click="closeGenerateModal"
+                        type="button"
+                        class="w-full sm:w-auto px-4 py-2 border border-stone-300 bg-white text-stone-700 rounded-lg shadow-md hover:bg-stone-100 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Anuluj generowanie podsumowania">
+                        Anuluj
+                    </button>
+                    <button 
+                        @@click="generateSummary"
+                        :disabled="!selectedPeriod || generating"
+                        type="button"
+                        class="w-full sm:w-auto btn-terra px-4 py-2 rounded-lg shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :aria-label="!selectedPeriod ? 'Wybierz okres aby wygenerować podsumowanie' : generating ? 'Generowanie podsumowania w toku' : 'Generuj podsumowanie'">
+                        <span x-text="generating ? 'Generowanie...' : 'Generuj'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function summaryPage() {
+            return {
+                summaries: [],
+                loading: true,
+                error: null,
+                generating: false,
+                showGenerateModal: false,
+                selectedPeriod: null,
+                pagination: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    totalPages: 0
+                },
+                async init() {
+                    await this.loadSummaries();
+                },
+
+                async loadSummaries() {
+                    try {
+                        this.loading = true;
+                        this.error = null;
+                        const response = await fetch(`/api/Summaries?page=${this.pagination.currentPage}&pageSize=${this.pagination.pageSize}`, {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            switch (response.status) {
+                                case 400:
+                                    throw new Error(data.error || 'Nieprawidłowe parametry strony');
+                                case 401:
+                                    window.location.href = '/Login'; // Przekieruj do logowania
+                                    return;
+                                default:
+                                    throw new Error(data.error || 'Nie udało się pobrać podsumowań');
+                            }
+                        }
+
+                        this.summaries = data.summaries;
+                        this.pagination = data.pagination;
+                    } catch (err) {
+                        this.error = err.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async generateSummary() {
+                    if (!this.selectedPeriod) return;
+
+                    try {
+                        this.generating = true;
+                        const response = await fetch('/api/Summaries/generate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                period: this.selectedPeriod
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            switch (response.status) {
+                                case 400:
+                                    throw new Error(data.detail || 'Nieprawidłowy okres lub brak notatek w wybranym okresie');
+                                case 401:
+                                    window.location.href = '/Login'; // Przekieruj do logowania
+                                    return;
+                                case 429:
+                                    throw new Error('Przekroczono limit generowania podsumowań. Spróbuj ponownie później.');
+                                case 503:
+                                    throw new Error('Usługa generowania podsumowań jest tymczasowo niedostępna. Spróbuj ponownie później.');
+                                default:
+                                    throw new Error(data.detail || 'Nie udało się wygenerować podsumowania');
+                            }
+                        }
+
+                        await this.loadSummaries();
+                        this.closeGenerateModal();
+                        
+                        // Wyczyść błędy po udanej operacji
+                        this.error = null;
+                    } catch (err) {
+                        this.error = err.message;
+                    } finally {
+                        this.generating = false;
+                    }
+                },
+
+                async showSummaryDetails(id) {
+                    window.location.href = `/Summaries/Details/${id}`;
+                },
+
+                async changePage(page) {
+                    if (page < 1 || page > this.pagination.totalPages) return;
+                    this.pagination.currentPage = page;
+                    await this.loadSummaries();
+                },
+
+                openGenerateModal() {
+                    this.showGenerateModal = true;
+                    this.selectedPeriod = null;
+                },
+
+                closeGenerateModal() {
+                    this.showGenerateModal = false;
+                    this.selectedPeriod = null;
+                },
+
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleDateString('pl-PL', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+            }
+        }
+    </script>
+}

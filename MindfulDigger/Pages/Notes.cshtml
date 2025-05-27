@@ -1,0 +1,82 @@
+@page
+@model MindfulDigger.Pages.NotesModel
+@{
+	ViewData["Title"] = "Notatki";
+}
+
+<div class="w-full flex flex-col items-center px-4" x-data="notesPage">
+	<div class="flex flex-col items-center justify-center mb-6 text-center w-full max-w-lg mx-auto">
+		<!-- Liczba pozostałych notatek -->
+		<div x-show="totalCount >= 90 && totalCount < 100" class="text-amber-600 text-sm mb-2">
+			Pozostało <span x-text="100 - totalCount"></span> z 100 dostępnych notatek
+		</div>
+		<button
+			class="btn-terra py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+			x-bind:disabled="totalCount >= 100"
+			@@click="openModal">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+				<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+			</svg>
+			Dodaj notatkę
+		</button>
+	</div>
+
+	<!-- Informacja o limicie notatek gdy limit osiągnięty -->
+	<div x-show="totalCount >= 100" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center shadow-sm">
+		<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+		</svg>
+		<div>
+			<div class="font-semibold text-stone-900">Osiągnięto limit notatek</div>
+			<div class="text-stone-700">Masz maksymalną liczbę 100 notatek. Aby dodać nowe, musisz usunąć niektóre z istniejących.</div>
+		</div>
+	</div>
+
+	<!-- Komunikat o braku notatek -->
+	<div x-show="notes.length === 0 && !isLoading" class="bg-stone-50 rounded-lg p-8 text-center shadow-sm">
+		<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-stone-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+		</svg>
+		<h2 class="text-xl font-semibold text-stone-700 mb-1">Nie masz jeszcze żadnych notatek</h2>
+		<p class="text-stone-500">Kliknij "Dodaj notatkę", aby utworzyć swoją pierwszą notatkę.</p>
+	</div>
+
+	<!-- Indykator ładowania -->
+	<div x-show="isLoading && notes.length === 0" class="flex justify-center py-8">
+		<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+	</div>
+
+	<!-- Grid z notatkami - Alpine.js rendering (client-side) -->
+	<div x-show="notes.length > 0" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="notes-grid">
+		<template x-for="note in notes" :key="note.id">
+			<div @@click="goToNoteDetails(note.id)" class="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition duration-300 border border-stone-200">
+				<div class="text-stone-500 text-sm mb-2" x-text="formatDate(note.creationDate)"></div>
+				<div class="text-stone-800" x-text="note.contentSnippet"></div>
+			</div>
+		</template>
+	</div>
+
+	<!-- Indykator ładowania kolejnych stron -->
+	<div x-show="isLoading && notes.length > 0" class="flex justify-center py-8">
+		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+	</div>
+
+	<!-- Komunikat końca listy -->
+	<div x-show="!isLoading && !hasMorePages && notes.length > 0" class="text-center py-6 text-stone-500">
+		Nie ma więcej notatek do wyświetlenia.
+	</div>
+
+	<!-- Element obserwowany przez intersection observer (infinite scroll) -->
+	<div id="scroll-trigger" class="h-10"></div>
+
+	<!-- Modal do tworzenia notatki -->
+	<partial name="_CreateNoteModal" />
+</div>
+
+@section Scripts {
+	<script>
+		window.__notesTotalCount = @Model.TotalCount;
+	</script>
+	<script type="module" src="~/js/notes.js" defer></script>
+
+}

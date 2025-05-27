@@ -1,0 +1,74 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap');
+
+:root {
+  --color-bg: #F7EAD3;
+  --color-accent-terra: #E3B778;
+  --color-accent-blue: #A3BFD9;
+}
+
+body {
+  background-color: var(--color-bg);
+  font-family: 'Georgia', serif;
+  /* Dodano płynne przejście kolorów */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Dodatkowe reguły typografii */
+p, span, div {
+  font-family: 'Georgia', serif;
+}
+
+.font-raleway {
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Przykład użycia kolorów akcentów */
+.accent-terra {
+  color: var(--color-accent-terra);
+}
+.accent-blue {
+  color: var(--color-accent-blue);
+}
+.bg-accent-terra {
+  background-color: var(--color-accent-terra);
+}
+.bg-accent-blue {
+  background-color: var(--color-accent-blue);
+}
+
+/* Ustawienia domyślne dla linków */
+a {
+  color: var(--color-accent-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, a:focus {
+  color: var(--color-accent-terra);
+  text-decoration: underline;
+}
+
+/* Subtelna faktura tła */
+.texture-bg {
+  background-image: linear-gradient(0deg, rgba(255,255,255,0.05) 1px, transparent 1px) !important;
+  background-size: 100% 2px !important;
+}
+
+/* Utility: duże odstępy sekcji */
+.section-spacing {
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Przyciski */
+.btn-terra {
+  background-color: var(--color-accent-terra);
+}
+.btn-terra:hover {
+  background-color: #d6a35f; /* Ciemniejsza wersja --color-accent-terra */
+}

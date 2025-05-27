@@ -1,0 +1,13 @@
+{
+  "name": "mindfuldigger",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./MindfulDigger/wwwroot/css/tailwind.css -o ./MindfulDigger/wwwroot/css/tailwind.generated.css --minify"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17"
+  }
+}
